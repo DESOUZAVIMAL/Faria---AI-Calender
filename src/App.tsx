@@ -12,6 +12,8 @@ import DayGanttPanel from "./components/DayGanttPanel";
 import PeopleSelector from "./components/PeopleSelector";
 import HoursSelector from "./components/HoursSelector";
 import AICopilotPanel from "./components/AICopilotPanel";
+import WeeklyHorizon from "./components/WeeklyHorizon";
+import DailyFocus from "./components/DailyFocus";
 
 import { 
   Calendar, 
@@ -39,21 +41,6 @@ import { DateTime } from "luxon";
 import { motion, AnimatePresence } from "motion/react";
 
 // --- Tab placeholder components with dark-mode glassmorphism ---
-const WeeklyHorizon = () => (
-  <div className="p-8 h-full flex flex-col items-center justify-center border border-white/10 rounded-2xl m-8 bg-[#141b30]/40 backdrop-blur-md">
-    <Layout size={48} className="text-blue-400 opacity-50 mb-4 animate-pulse" />
-    <h3 className="text-xl font-display font-semibold text-[#EAF0FF]">Weekly Horizon</h3>
-    <p className="text-sm text-[#AEB9D6] mt-2">Horizontal/Vertical Gantt Planner will render here.</p>
-  </div>
-);
-
-const DailyFocus = () => (
-  <div className="p-8 h-full flex flex-col items-center justify-center border border-white/10 rounded-2xl m-8 bg-[#141b30]/40 backdrop-blur-md">
-    <Clock size={48} className="text-emerald-400 opacity-50 mb-4 animate-pulse" />
-    <h3 className="text-xl font-display font-semibold text-[#EAF0FF]">Daily Focus</h3>
-    <p className="text-sm text-[#AEB9D6] mt-2 font-display text-center">Granular single-day agenda and meeting metadata will render here.</p>
-  </div>
-);
 
 const AICopilotTab = () => (
   <div className="p-8 h-full flex flex-col items-center justify-center border border-white/10 rounded-2xl m-8 bg-[#141b30]/40 backdrop-blur-md">
