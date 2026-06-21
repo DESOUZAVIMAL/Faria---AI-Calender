@@ -1,0 +1,6 @@
+{
+  "name": "Faria Calendar",
+  "description": "Cross-timezone team availability, scheduling, and calendar optimization tool.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
