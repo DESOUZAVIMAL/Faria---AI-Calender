@@ -285,14 +285,70 @@ app.get("/api/auth/url", (req, res) => {
 // 2. Auth Callback Handler
 app.get("/api/auth/callback", async (req, res) => {
   const code = req.query.code as string;
+
+  const sendAuthResult = (status: "success" | "error", data: any) => {
+    res.send(`
+      <html>
+        <head>
+          <title>Authenticating with Faria Calendar</title>
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+              background-color: #070A14;
+              color: #EAF0FF;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              height: 100vh;
+              margin: 0;
+              text-align: center;
+            }
+            .spinner {
+              border: 3px solid rgba(255, 255, 255, 0.1);
+              width: 36px;
+              height: 36px;
+              border-radius: 50%;
+              border-left-color: #6366f1;
+              animation: spin 1s linear infinite;
+              margin-bottom: 20px;
+            }
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+          </style>
+        </head>
+        <body>
+          <div class="spinner"></div>
+          <h2>${status === "success" ? "Authentication Successful" : "Authentication Failed"}</h2>
+          <p>${status === "success" ? "Syncing calendar streams... closing shortly." : data.error || "An error occurred."}</p>
+          <script>
+            try {
+              if (window.opener) {
+                window.opener.postMessage({
+                  type: ${status === "success" ? "'OAUTH_AUTH_SUCCESS'" : "'OAUTH_AUTH_FAILURE'"},
+                  error: ${status === "error" ? JSON.stringify(data.error) : "null"}
+                }, "*");
+                setTimeout(() => window.close(), 800);
+              } else {
+                window.location.href = "${APP_URL}/" + (${status === "error" ? "?auth_error=" + encodeURIComponent(data.error) : ""});
+              }
+            } catch (e) {
+              console.error(e);
+              window.location.href = "${APP_URL}/";
+            }
+          </script>
+        </body>
+      </html>
+    `);
+  };
+
   if (!code) {
-    res.redirect(`${APP_URL}/?auth_error=NoCodeProvided`);
+    sendAuthResult("error", { error: "NoCodeProvided" });
     return;
   }
 
   const oauthClient = getOAuth2Client();
   if (!oauthClient) {
-    res.redirect(`${APP_URL}/?auth_error=OAuthMisconfigured`);
+    sendAuthResult("error", { error: "OAuthMisconfigured" });
     return;
   }
 
@@ -306,7 +362,7 @@ app.get("/api/auth/callback", async (req, res) => {
     const googleUser = userInfoResponse.data;
 
     if (!googleUser.email || !googleUser.id) {
-      res.redirect(`${APP_URL}/?auth_error=NoEmailOrId`);
+      sendAuthResult("error", { error: "NoEmailOrId" });
       return;
     }
 
@@ -315,7 +371,7 @@ app.get("/api/auth/callback", async (req, res) => {
     if (ALLOWED_DOMAIN) {
       const emailDomain = googleUser.email.split("@")[1]?.toLowerCase() || "";
       if (emailDomain !== ALLOWED_DOMAIN.toLowerCase()) {
-        res.redirect(`${APP_URL}/?auth_error=DomainNotAllowed`);
+        sendAuthResult("error", { error: "DomainNotAllowed" });
         return;
       }
     }
@@ -353,18 +409,18 @@ app.get("/api/auth/callback", async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    // Set HTTPOnly cookie
+    // Set HTTPOnly cookie (Always use secure & SameSite=None inside preview cross-origin iframe context)
     res.cookie("faria_session", sessionToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.redirect(`${APP_URL}/`);
+    sendAuthResult("success", {});
   } catch (err) {
     console.error("OAuth callback error:", err);
-    res.redirect(`${APP_URL}/?auth_error=CallbackFailed`);
+    sendAuthResult("error", { error: "CallbackFailed" });
   }
 });
 
@@ -396,8 +452,8 @@ app.post("/api/auth/demo", async (req, res) => {
 
   res.cookie("faria_session", sessionToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: true,
+    sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -461,8 +517,8 @@ app.post("/api/me/timezone", authenticateJWT, async (req, res) => {
 
   res.cookie("faria_session", sessionToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: true,
+    sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -536,6 +592,222 @@ app.delete("/api/people/:id", authenticateJWT, async (req, res) => {
   const { id } = req.params;
   await deleteRosterPerson(id);
   res.json({ status: "success" });
+});
+
+// POST /api/copilot
+app.post("/api/copilot", authenticateJWT, async (req, res) => {
+  try {
+    const { userMessage, selectedTeammates, currentUserTimezone } = req.body;
+    const jwtUser = (req as any).user;
+    
+    const dbUser = await getUser(jwtUser.id);
+    const viewerTz = currentUserTimezone || dbUser?.viewer_tz || jwtUser.viewer_tz || "America/New_York";
+    const userPrefs = await getPreferences(jwtUser.id);
+    const userHours = await getWorkHours(jwtUser.id);
+    const roster = await getRoster();
+
+    // Merge full roster
+    const allPeople = [
+      {
+        id: jwtUser.id,
+        name: dbUser?.name || jwtUser.name,
+        email: dbUser?.email || jwtUser.email,
+        timezone: viewerTz,
+        role: "you" as const,
+        segments: userHours.segments,
+      },
+      ...roster.map(r => ({ ...r, role: r.role as any }))
+    ];
+
+    let idsToFilter: string[] = [];
+    if (Array.isArray(selectedTeammates)) {
+      if (selectedTeammates.length > 0 && typeof selectedTeammates[0] === 'string') {
+        idsToFilter = selectedTeammates;
+      } else if (selectedTeammates.length > 0 && typeof selectedTeammates[0] === 'object') {
+        idsToFilter = selectedTeammates.map((p: any) => p?.id || p?.personId).filter(Boolean);
+      }
+    }
+
+    if (idsToFilter.length === 0) {
+      idsToFilter = allPeople.map(p => p.id);
+    }
+
+    const selectedPeople = allPeople.filter(p => idsToFilter.includes(p.id));
+    const dateStr = DateTime.now().setZone(viewerTz).toFormat("yyyy-MM-dd");
+
+    const rows = [];
+    for (const person of selectedPeople) {
+      let events: ExtractedEvent[] = [];
+      let isRealGoogleData = false;
+
+      if (person.id === jwtUser.id && dbUser?.encrypted_refresh_token && !jwtUser.isDemo) {
+        try {
+          const oauthClient = getOAuth2Client();
+          if (oauthClient) {
+            const decryptedRef = decryptToken(dbUser.encrypted_refresh_token);
+            oauthClient.setCredentials({ refresh_token: decryptedRef });
+            const calendar = google.calendar({ version: "v3", auth: oauthClient });
+
+            const startDt = DateTime.fromISO(dateStr, { zone: viewerTz }).startOf("day");
+            const endDt = DateTime.fromISO(dateStr, { zone: viewerTz }).endOf("day");
+
+            const listResponse = await calendar.events.list({
+              calendarId: "primary",
+              timeMin: startDt.toISO() || undefined,
+              timeMax: endDt.toISO() || undefined,
+              singleEvents: true,
+              orderBy: "startTime",
+            });
+
+            events = (listResponse.data.items || []).map(item => ({
+              title: item.summary || "Busy Block",
+              startIso: item.start?.dateTime || item.start?.date || "",
+              endIso: item.end?.dateTime || item.end?.date || "",
+              status: item.status || "confirmed",
+              eventType: item.eventType || "default",
+              transparency: item.transparency || "opaque",
+              responseStatus: item.attendees?.find(a => a.self)?.responseStatus || "accepted",
+              isOptional: item.attendees?.find(a => a.self)?.optional || false,
+              attendeeCount: item.attendees?.length || 0,
+            }));
+            isRealGoogleData = true;
+          }
+        } catch (err) {
+          console.error("Copilot: Failed user google events search, falling back.", err);
+        }
+      }
+
+      if (person.id !== jwtUser.id && dbUser?.encrypted_refresh_token && !jwtUser.isDemo) {
+        try {
+          const oauthClient = getOAuth2Client();
+          if (oauthClient) {
+            const decryptedRef = decryptToken(dbUser.encrypted_refresh_token);
+            oauthClient.setCredentials({ refresh_token: decryptedRef });
+            const calendar = google.calendar({ version: "v3", auth: oauthClient });
+
+            const startDt = DateTime.fromISO(dateStr, { zone: viewerTz }).startOf("day");
+            const endDt = DateTime.fromISO(dateStr, { zone: viewerTz }).endOf("day");
+
+            const freebusyRes = await calendar.freebusy.query({
+              requestBody: {
+                timeMin: startDt.toISO() || undefined,
+                timeMax: endDt.toISO() || undefined,
+                items: [{ id: person.email }],
+              },
+            });
+
+            const busyPeriods = freebusyRes.data.calendars?.[person.email]?.busy || [];
+            events = busyPeriods.map(period => ({
+              title: "Busy",
+              startIso: period.start || "",
+              endIso: period.end || "",
+              status: "confirmed",
+              eventType: "default",
+              transparency: "opaque",
+              responseStatus: "accepted",
+              isOptional: false,
+              attendeeCount: 1,
+            }));
+            isRealGoogleData = true;
+          }
+        } catch (err) {
+          console.error(`Copilot: Failed queries for ${person.name}, fallback to mock.`, err);
+        }
+      }
+
+      if (!isRealGoogleData) {
+        events = generateRealisticEvents(person.email, person.timezone, dateStr, userPrefs);
+      }
+
+      const { blocks } = processGoogleEvents(events, dateStr, viewerTz, userPrefs.muted_titles, userPrefs.broadcast_threshold ?? 15);
+      
+      let finalBlocks = blocks;
+      if (userPrefs.only_accepted) {
+        finalBlocks = finalBlocks.filter(b => b.originalEvent?.responseStatus === "accepted" || !b.originalEvent?.responseStatus);
+      }
+      if (userPrefs.hide_optional) {
+        finalBlocks = finalBlocks.filter(b => b.originalEvent?.isOptional !== true);
+      }
+
+      const hourlyLevels: (0 | 1 | 2 | 3)[] = [];
+      for (let s = 0; s < 48; s++) {
+        const viewerHour = s / 2;
+        const { level } = getAvailabilityForHour(
+          viewerHour,
+          dateStr,
+          person.timezone,
+          viewerTz,
+          person.segments,
+          finalBlocks
+        );
+        hourlyLevels.push(level);
+      }
+
+      rows.push({
+        personId: person.id,
+        id: person.id,
+        name: person.name,
+        timezone: person.timezone,
+        hourlyLevels,
+      });
+    }
+
+    // Call findCommonFreeSlots using rows
+    const freeSlots = findCommonFreeSlots(rows, 0.5);
+
+    // 2. Call real Gemini API
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    if (!GEMINI_API_KEY) {
+      res.status(500).json({ error: "GEMINI_API_KEY environment variable is not defined." });
+      return;
+    }
+
+    const sysContext = [
+      "You are Faria, an elite scheduling layer built over Google Calendar.",
+      "Below is the current raw availability overlap math matrix for the active team:",
+      JSON.stringify(freeSlots, null, 2),
+      "And the list of teammates and their timezones:",
+      JSON.stringify(rows.map(r => ({ name: r.name, timezone: r.timezone })), null, 2),
+      "Use this information along with your intelligence to recommend perfect meeting slots.",
+      "If the user asks where everyone overlaps, suggest slots in local times where possible.",
+      "Be warm, professional, concise, and precise."
+    ].join("\n\n");
+
+    const payload = {
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { text: `System context:\n${sysContext}\n\nUser request:\n${userMessage || "Hello"}` }
+          ]
+        }
+      ]
+    };
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const geminiRes = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!geminiRes.ok) {
+      const errorText = await geminiRes.text();
+      console.error("Gemini API call failed:", errorText);
+      res.status(500).json({ error: `Gemini API call failed: ${errorText}` });
+      return;
+    }
+
+    const geminiData = await geminiRes.json();
+    const aiTextResponse = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated.";
+
+    res.json({ reply: aiTextResponse });
+  } catch (error: any) {
+    console.error("Error in /api/copilot endpoint:", error);
+    res.status(500).json({ error: error?.message || "An exception occurred inside standard copilot pipeline." });
+  }
 });
 
 // GET /api/day?date=YYYY-MM-DD&people=ids

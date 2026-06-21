@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   TeammateRow, 
   DayData, 
@@ -30,10 +30,38 @@ import {
   Sparkles,
   Menu,
   X,
-  Bot
+  Bot,
+  RefreshCw,
+  CalendarDays,
+  Layout
 } from "lucide-react";
 import { DateTime } from "luxon";
 import { motion, AnimatePresence } from "motion/react";
+
+// --- Tab placeholder components with dark-mode glassmorphism ---
+const WeeklyHorizon = () => (
+  <div className="p-8 h-full flex flex-col items-center justify-center border border-white/10 rounded-2xl m-8 bg-[#141b30]/40 backdrop-blur-md">
+    <Layout size={48} className="text-blue-400 opacity-50 mb-4 animate-pulse" />
+    <h3 className="text-xl font-display font-semibold text-[#EAF0FF]">Weekly Horizon</h3>
+    <p className="text-sm text-[#AEB9D6] mt-2">Horizontal/Vertical Gantt Planner will render here.</p>
+  </div>
+);
+
+const DailyFocus = () => (
+  <div className="p-8 h-full flex flex-col items-center justify-center border border-white/10 rounded-2xl m-8 bg-[#141b30]/40 backdrop-blur-md">
+    <Clock size={48} className="text-emerald-400 opacity-50 mb-4 animate-pulse" />
+    <h3 className="text-xl font-display font-semibold text-[#EAF0FF]">Daily Focus</h3>
+    <p className="text-sm text-[#AEB9D6] mt-2 font-display text-center">Granular single-day agenda and meeting metadata will render here.</p>
+  </div>
+);
+
+const AICopilotTab = () => (
+  <div className="p-8 h-full flex flex-col items-center justify-center border border-white/10 rounded-2xl m-8 bg-[#141b30]/40 backdrop-blur-md">
+    <Sparkles size={48} className="text-purple-400 opacity-50 mb-4 animate-pulse" />
+    <h3 className="text-xl font-display font-semibold text-[#EAF0FF]">Gemini AI Copilot</h3>
+    <p className="text-sm text-[#AEB9D6] mt-2 text-center">Natural language chat and dynamic generative UI widgets will render here.</p>
+  </div>
+);
 
 // Performance friendly inline count up component for Stats
 function CountUp({ value }: { value: number }) {
@@ -79,6 +107,13 @@ export default function App() {
   const [selectedPeopleIds, setSelectedPeopleIds] = useState<string[]>([]);
   const [weekData, setWeekData] = useState<WeekApiResponse | null>(null);
   const [loadingWeek, setLoadingWeek] = useState(false);
+  const calendarCache = React.useRef<{[key: string]: any}>({});
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleSyncFreshReload = () => {
+    calendarCache.current = {};
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   // Stacked details for opened days, mapped by date YYYY-MM-DD
   const [openDays, setOpenDays] = useState<string[]>([]);
@@ -98,24 +133,46 @@ export default function App() {
   // UI Drawer & Copilot states
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("scheduling");
 
   // Fetch logged in user status
   useEffect(() => {
-    fetch("/api/me")
-      .then((res) => {
-        if (res.ok) return res.json();
-        throw new Error("Not logged in");
-      })
-      .then((data) => {
-        setCurrentUser(data.user);
-        setUserWorkHours(data.workHours);
-        setPreferences(data.preferences);
-        setLoadingUser(false);
-      })
-      .catch(() => {
-        setCurrentUser(null);
-        setLoadingUser(false);
-      });
+    const checkLoginStatus = () => {
+      fetch("/api/me")
+        .then((res) => {
+          if (res.ok) return res.json();
+          throw new Error("Not logged in");
+        })
+        .then((data) => {
+          setCurrentUser(data.user);
+          setUserWorkHours(data.workHours);
+          setPreferences(data.preferences);
+          setLoadingUser(false);
+        })
+        .catch(() => {
+          setCurrentUser(null);
+          setLoadingUser(false);
+        });
+    };
+
+    checkLoginStatus();
+
+    // Listen for OAuth message callback from popup
+    const handleAuthMessage = (event: MessageEvent) => {
+      const origin = event.origin;
+      if (!origin.endsWith(".run.app") && !origin.includes("localhost") && !origin.includes("127.0.0.1")) {
+        return;
+      }
+      if (event.data?.type === "OAUTH_AUTH_SUCCESS") {
+        setLoadingUser(true);
+        checkLoginStatus();
+      } else if (event.data?.type === "OAUTH_AUTH_FAILURE") {
+        alert("Google sign in failed: " + (event.data.error || "Unknown error"));
+      }
+    };
+
+    window.addEventListener("message", handleAuthMessage);
+    return () => window.removeEventListener("message", handleAuthMessage);
   }, []);
 
   // Fetch teammate list once logged in or roster updates
@@ -154,11 +211,19 @@ export default function App() {
       return;
     }
 
+    const cacheKey = [...selectedPeopleIds].sort().join(",");
+    if (calendarCache.current[cacheKey]) {
+      setWeekData(calendarCache.current[cacheKey]);
+      setLoadingWeek(false);
+      return;
+    }
+
     setLoadingWeek(true);
     const peopleParam = selectedPeopleIds.join(",");
     fetch(`/api/week?start=${currentWeekStart}&people=${peopleParam}`)
       .then((res) => res.json())
       .then((data) => {
+        calendarCache.current[cacheKey] = data;
         setWeekData(data);
         setLoadingWeek(false);
       })
@@ -166,7 +231,7 @@ export default function App() {
         console.error("Failed to fetch week matrix:", err);
         setLoadingWeek(false);
       });
-  }, [currentUser, selectedPeopleIds, currentWeekStart, preferences]);
+  }, [currentUser, selectedPeopleIds, currentWeekStart, preferences, refreshTrigger]);
 
   // Re-fetch Day details when opened days or selectedIds change
   useEffect(() => {
@@ -191,13 +256,25 @@ export default function App() {
     });
   }, [currentUser, selectedPeopleIds, openDays, preferences]);
 
-  // Handle OAuth Sign-in Redirect
+  // Handle OAuth Sign-in Redirect with Popup fallback
   const handleGoogleSignIn = () => {
     fetch("/api/auth/url")
       .then((res) => res.json())
       .then((data) => {
         if (data.url) {
-          window.location.href = data.url;
+          const width = 600;
+          const height = 700;
+          const left = window.screen.width / 2 - width / 2;
+          const top = window.screen.height / 2 - height / 2;
+          const popup = window.open(
+            data.url,
+            "faria_google_auth",
+            `width=${width},height=${height},left=${left},top=${top},status=no,resizable=yes,scrollbars=yes`
+          );
+          if (!popup) {
+            // Revert to normal redirect if popup blocker is engaged
+            window.location.href = data.url;
+          }
         } else if (data.isDemoOnly) {
           handleDemoSignIn();
         }
@@ -387,328 +464,410 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070A14] aurora-bg text-[#EAF0FF] relative overflow-x-hidden">
+    <div className="flex h-screen bg-[#070A14] text-[#EAF0FF] overflow-hidden aurora-bg select-none">
       
-      {/* 1. STICKY INTERACTIVE TOP BAR */}
-      <header className="sticky top-0 bg-[#070A14]/75 backdrop-blur-md border-b border-white/5 z-40 select-none">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-15 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            {/* Hamburger for mobile */}
-            <button 
-              onClick={() => setMobileSidebarOpen(true)}
-              className="lg:hidden p-1.5 rounded-lg bg-white/5 text-slate-300 border border-white/5 hover:text-white transition-all cursor-pointer"
-            >
-              <Menu className="h-4.5 w-4.5" />
-            </button>
-
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-teal-400 flex items-center justify-center text-white font-bold text-sm shadow">
-              F
-            </div>
-            <div>
-              <h1 className="font-display text-sm font-bold tracking-tight text-[#EAF0FF]">
-                Faria Calendar
-              </h1>
-              <p className="text-[10px] text-teal-300 leading-none font-medium">
-                Find a time that works across timezones
-              </p>
-            </div>
+      {/* 0. PERSISTENT LEFT SIDEBAR */}
+      <aside className="w-64 flex flex-col bg-[#141b30]/35 border-r border-white/5 backdrop-blur-xl shrink-0 z-20 hidden lg:flex select-none">
+        {/* App Branding */}
+        <div className="h-16 flex items-center px-6 border-b border-white/5 shrink-0">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center mr-3 shadow-[0_0_15px_rgba(79,70,229,0.3)]">
+            <Sparkles size={14} className="text-white animate-pulse" />
           </div>
+          <h1 className="text-sm font-display font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-[#AEB9D6] tracking-wide">
+            Faria Calendar
+          </h1>
+        </div>
 
-          {/* User badge and logout */}
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 bg-[#141b30]/55 border border-white/5 px-3 py-1 rounded-full text-xs font-medium text-[#AEB9D6]">
-              {currentUser.picture ? (
-                <img
-                  src={currentUser.picture}
-                  referrerPolicy="no-referrer"
-                  alt={currentUser.name}
-                  className="w-5 h-5 rounded-full"
-                />
-              ) : (
-                <div className="w-5 h-5 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-[10px]">
-                  {currentUser.name[0]}
-                </div>
-              )}
-              <span className="max-w-[120px] truncate">{currentUser.name}</span>
-              <span className="text-[10px] text-[#6B779C] font-mono select-none">
-                {currentUser.viewer_tz}
-              </span>
-            </div>
+        {/* Navigation Menu */}
+        <nav className="flex-1 py-6 px-4 space-y-1.5 overflow-y-auto no-scrollbar">
+          {[
+            { id: "scheduling", label: "Scheduling Hub", icon: CalendarDays },
+            { id: "weekly", label: "Weekly Horizon", icon: Layout },
+            { id: "daily", label: "Daily Focus", icon: Clock },
+            { id: "ai", label: "AI Copilot", icon: Sparkles },
+          ].map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center px-4 py-3 rounded-xl transition-all duration-200 text-xs font-semibold tracking-wide border ${
+                  isActive 
+                    ? "bg-white/10 text-indigo-300 border-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.15)] bg-slate-900/30" 
+                    : "text-gray-400 hover:bg-white/5 hover:text-gray-200 border-transparent"
+                }`}
+              >
+                <Icon size={15} className={`mr-3 ${isActive ? "text-indigo-400 font-bold" : ""}`} />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
 
-            {/* Timezone picker */}
-            <select
-              value={currentUser.viewer_tz}
-              onChange={(e) => handleUpdateTimezone(e.target.value)}
-              className="bg-[#070A14] border border-white/10 text-[#AEB9D6] rounded-full text-[11px] px-3 py-1 focus:outline-none focus:border-[#6D8BFF] font-mono hover:border-white/20 transition-all cursor-pointer"
-            >
-              <option value="America/New_York">America/New_York</option>
-              <option value="America/Los_Angeles">America/Los_Angeles</option>
-              <option value="Europe/London">Europe/London</option>
-              <option value="Asia/Kolkata">Asia/Kolkata</option>
-              <option value="Asia/Tokyo">Asia/Tokyo</option>
-              <option value="Australia/Sydney">Australia/Sydney</option>
-            </select>
-
-            {/* Futuristic presentation-only AI copilot trigger */}
-            <button
-              onClick={() => setIsCopilotOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-tr from-indigo-500/80 to-purple-500/80 border border-indigo-400/30 text-xs text-[#EAF0FF] font-bold rounded-full pulse-glow hover:brightness-110 active:scale-95 transition-all cursor-pointer"
-            >
-              <Sparkles className="h-3.5 w-3.5 text-[#5EEAD4] animate-spin-slow" />
-              <span className="hidden md:inline">Ask AI Assist</span>
-            </button>
-
-            <button
-              onClick={handleLogout}
-              className="p-1.5 bg-[#141b30]/40 border border-white/5 text-slate-400 hover:text-red-400 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
-              title="Logout session"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
+        {/* Info label in sidebar */}
+        <div className="p-4 border-t border-white/5 bg-[#141b30]/10 shrink-0">
+          <div className="flex items-center gap-2 px-2 py-1">
+            <div className="w-2 h-2 rounded-full bg-teal-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.7)]" />
+            <span className="text-[9px] font-mono tracking-wider font-bold text-teal-400">SECURE ENDPOINT ACTIVE</span>
           </div>
         </div>
-      </header>
+      </aside>
 
-      {/* 2. MAIN BENTO GRID LAYOUT */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* RIGHT SIDEBAR/MAIN CONTAINER */}
+      <main className="flex-1 flex flex-col relative overflow-hidden">
         
-        {/* KPI stat bar chip dashboard header */}
-        <motion.div 
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35 }}
-          className="flex flex-wrap gap-3.5 mb-6.5 select-none"
-        >
-          <div className="bg-[#141b30]/45 border border-white/5 rounded-xl px-4 py-2.5 flex items-center gap-2.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(109,139,255,0.7)]" />
-            <span className="text-xs text-[#AEB9D6]">
-              Active Teammates selected: <strong className="text-white"><CountUp value={selectedPeopleIds.length} /></strong>
-            </span>
-          </div>
-          {weekData?.rankedSummary && (
-            <div className="bg-[#141b30]/45 border border-white/5 rounded-xl px-4 py-2.5 flex items-center gap-2.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)] animate-pulse" />
-              <span className="text-xs text-[#AEB9D6]">
-                Consensus Slots Spotted: <strong className="text-white"><CountUp value={weekData.rankedSummary.length} /></strong>
-              </span>
-            </div>
-          )}
-          <div className="bg-[#141b30]/45 border border-white/5 rounded-xl px-4 py-2.5 flex items-center gap-2.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-purple-400 shadow-[0_0_8px_rgba(167,139,250,0.7)]" />
-            <span className="text-xs text-[#AEB9D6]">
-              Filtered filters: <strong className="text-white"><CountUp value={preferences.muted_titles?.length || 0} /> rules</strong>
-            </span>
-          </div>
-        </motion.div>
+        {/* 1. STICKY INTERACTIVE TOP BAR */}
+        <header className="sticky top-0 bg-[#070A14]/75 backdrop-blur-md border-b border-white/5 z-40 select-none shrink-0 h-16 flex items-center">
+          <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              {/* Hamburger for mobile */}
+              <button 
+                onClick={() => setMobileSidebarOpen(true)}
+                className="lg:hidden p-1.5 rounded-lg bg-white/5 text-slate-300 border border-white/5 hover:text-white transition-all cursor-pointer"
+              >
+                <Menu className="h-4.5 w-4.5" />
+              </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 items-start">
-          
-          {/* sidebar - Left column (Desktop only, collapses on mobile drawer) */}
-          <aside className="hidden lg:block space-y-6">
-            <PeopleSelector
-              people={people}
-              selectedIds={selectedPeopleIds}
-              onTogglePerson={handleTogglePerson}
-              onSelectAll={handleSelectAll}
-              onSelectNone={handleSelectNone}
-              preferences={preferences}
-              onUpdatePrefs={handleUpdatePrefs}
-              onAddRosterPerson={handleAddRosterPerson}
-              onDeletePerson={handleDeletePerson}
-            />
-
-            {/* working segments manager */}
-            <HoursSelector
-              segments={userWorkHours}
-              onSaveSegments={handleSaveSegments}
-            />
-
-            {/* sub-calendars list tracker */}
-            <div className="glass-panel rounded-2xl p-4.5">
-              <h4 className="font-display text-xs font-semibold text-[#EAF0FF] mb-2.5 flex items-center gap-1.5">
-                <CalendarRange className="h-4 w-4 text-emerald-400" />
-                Active Calendars list
-              </h4>
-              <div className="space-y-1.5 max-h-32 overflow-y-auto no-scrollbar">
-                {calendars.map((c, idx) => (
-                  <label key={idx} className="flex items-center gap-2 text-[11px] text-[#AEB9D6] hover:text-[#EAF0FF] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={c.include}
-                      className="rounded border-[#6B779C] text-[#6D8BFF] focus:ring-[#6D8BFF] cursor-pointer"
-                      onChange={() => {
-                        const updated = [...calendars];
-                        updated[idx].include = !updated[idx].include;
-                        setCalendars(updated);
-                        handleUpdatePrefs({});
-                      }}
-                    />
-                    <span className="truncate">{c.summary}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          </aside>
-
-          {/* Main workspace widgets */}
-          <section className="space-y-8 flex-1 min-w-0">
-            
-            {/* Nav controls */}
-            <div className="flex items-center justify-between glass-panel rounded-2xl p-4 select-none">
-              <div>
-                <span className="text-[10px] text-[#6B779C] uppercase tracking-wider font-bold font-mono">
-                  Active Focus Week
-                </span>
-                <span className="font-display block text-sm font-bold text-[#EAF0FF]">
-                  Week of {DateTime.fromISO(currentWeekStart).toFormat("MMMM dd, yyyy")}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleShiftWeek(-1)}
-                  className="p-1.5 bg-slate-900/40 hover:bg-slate-800 text-slate-300 border border-white/5 rounded-xl transition-all cursor-pointer"
-                  title="Previous Week"
-                >
-                  <ChevronLeft className="h-4.5 w-4.5" />
-                </button>
-                <button
-                  onClick={() => {
-                    const mon = DateTime.now().setZone("America/New_York").startOf("week");
-                    setCurrentWeekStart(mon.toFormat("yyyy-MM-dd"));
-                  }}
-                  className="px-3.5 py-1.5 bg-slate-900/40 hover:bg-slate-800 text-xs font-semibold text-[#EAF0FF] border border-white/5 rounded-xl transition-all cursor-pointer"
-                >
-                  Go to Today
-                </button>
-                <button
-                  onClick={() => handleShiftWeek(1)}
-                  className="p-1.5 bg-slate-900/40 hover:bg-slate-800 text-slate-300 border border-white/5 rounded-xl transition-all cursor-pointer"
-                  title="Next Week"
-                >
-                  <ChevronRight className="h-4.5 w-4.5" />
-                </button>
-              </div>
-            </div>
-
-            {/* 1. WEEK OVERLAP HEATMAP SCANNER */}
-            <WeekHeatmap
-              weekData={weekData ? weekData.days : null}
-              selectedIds={selectedPeopleIds}
-              activeDate={DateTime.now().setZone("America/New_York").toFormat("yyyy-MM-dd")}
-              openDays={openDays}
-              onToggleDay={handleToggleDay}
-              workingHoursOnly={preferences.working_hours_only}
-            />
-
-            {/* 2. CHRONOLOGICAL SUMMARY RANKED BEST RUNS */}
-            {weekData && weekData.rankedSummary && weekData.rankedSummary.length > 0 && (
-              <div className="glass-panel rounded-2xl p-5">
-                <h4 className="font-display text-xs font-bold text-[#EAF0FF] uppercase tracking-wider mb-3.5 flex items-center gap-1.5">
-                  <Star className="h-4 w-4 text-[#A78BFA]" />
-                  optimal overlap schedules identified
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {weekData.rankedSummary.map((item, idx) => {
-                    const startHr = Math.floor(item.slot.start);
-                    const startMin = Math.round((item.slot.start - startHr) * 60);
-                    const endHr = Math.floor(item.slot.end);
-                    const endMin = Math.round((item.slot.end - endHr) * 60);
-
-                    const timeRepresentation = `${String(startHr).padStart(2, "0")}:${String(startMin).padStart(2, "0")} - ${String(endHr).padStart(2, "0")}:${String(endMin).padStart(2, "0")}`;
-
-                    return (
-                      <motion.div
-                        key={idx}
-                        whileHover={{ y: -3, scale: 1.01 }}
-                        transition={{ type: "spring", stiffness: 450, damping: 25 }}
-                        onClick={() => {
-                          if (!openDays.includes(item.date)) {
-                            handleToggleDay(item.date);
-                          }
-                        }}
-                        className="bg-slate-900/60 border border-white/5 hover:border-[#6D8BFF]/45 rounded-xl p-3.5 transition-all cursor-pointer flex flex-col justify-between shadow-md"
-                      >
-                        <div>
-                          <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-xs font-bold text-teal-300">
-                              {item.dayName} &bull; {item.formattedDate}
-                            </span>
-                            <span className="text-[10px] text-[#A78BFA] font-mono font-bold uppercase tracking-wider">
-                              Rank #{idx + 1}
-                            </span>
-                          </div>
-                          <span className="text-sm font-semibold font-mono text-[#EAF0FF]">
-                            {timeRepresentation}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between mt-3 text-[10px] text-slate-500 font-mono">
-                          <span>Duration: {item.slot.duration} hours</span>
-                          <span className="text-[#34D399] font-bold">&#10003; Overlap Ready</span>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+              <div className="lg:hidden flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-500 to-teal-400 flex items-center justify-center text-white font-bold text-xs shadow">
+                  F
+                </div>
+                <div>
+                  <h1 className="font-display text-xs font-bold tracking-tight text-[#EAF0FF] leading-tight">
+                    Faria Calendar
+                  </h1>
                 </div>
               </div>
-            )}
 
-            {/* Empty stats state placeholder if no teammate selected */}
-            {selectedPeopleIds.length === 0 && (
-              <div className="glass-panel rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-3">
-                <Bot className="h-10 w-10 text-[#6D8BFF] opacity-40 animate-pulse" />
-                <h4 className="text-base font-display font-bold text-[#EAF0FF]">No Overlaps Loaded</h4>
-                <p className="text-xs text-[#AEB9D6] max-w-sm">
-                  Please select at least one teammate from the left roster layout to map their calendaravailability coordinates.
-                </p>
+              {/* Dynamic title bar for desktop */}
+              <div className="hidden lg:flex flex-col">
+                <h2 className="text-sm font-display font-bold text-[#EAF0FF] uppercase tracking-wider">
+                  {activeTab === "scheduling" ? "Scheduling Hub" : activeTab === "weekly" ? "Weekly Horizon" : activeTab === "daily" ? "Daily Focus" : "Gemini AI Copilot"}
+                </h2>
+                <span className="text-[10px] text-teal-300 leading-none mt-0.5">
+                  {activeTab === "scheduling" ? "Map multi-timezone calendars & overlaps" : "Platform capability preview block"}
+                </span>
               </div>
-            )}
-
-            {/* 3. STACKED DAY DETAILS PANEL CONTAINER WITH ANIMATED LAYOUTS */}
-            <div className="space-y-6">
-              <AnimatePresence mode="popLayout">
-                {openDays.map((dateStr) => {
-                  const dayDetail = daysDetailsCache[dateStr];
-                  const loading = loadingDays[dateStr];
-
-                  if (loading && !dayDetail) {
-                    return (
-                      <motion.div
-                        key={dateStr}
-                        initial={{ opacity: 0, scale: 0.98, y: 15 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.98 }}
-                        className="border border-white/5 bg-slate-900/40 rounded-2xl h-36 flex flex-col items-center justify-center text-slate-400 text-xs animate-pulse"
-                      >
-                        <Zap className="h-5 w-5 text-indigo-400 animate-spin mb-2" />
-                        <span>Reconstructing agenda timeline for {dateStr}...</span>
-                      </motion.div>
-                    );
-                  }
-
-                  if (dayDetail) {
-                    return (
-                      <motion.div 
-                        layout 
-                        key={dateStr}
-                        transition={{ type: "spring", stiffness: 350, damping: 28 }}
-                      >
-                        <DayGanttPanel
-                          dayData={dayDetail}
-                          selectedIds={selectedPeopleIds}
-                          onClose={() => handleToggleDay(dateStr)}
-                          workingHoursOnly={preferences.working_hours_only}
-                          viewerTz={currentUser.viewer_tz}
-                        />
-                      </motion.div>
-                    );
-                  }
-
-                  return null;
-                })}
-              </AnimatePresence>
             </div>
-          </section>
+
+            {/* User badge and logout */}
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:flex items-center gap-2 bg-[#141b30]/55 border border-white/5 px-3 py-1 rounded-full text-[11px] font-medium text-[#AEB9D6]">
+                {currentUser.picture ? (
+                  <img
+                    src={currentUser.picture}
+                    referrerPolicy="no-referrer"
+                    alt={currentUser.name}
+                    className="w-4 h-4 rounded-full"
+                  />
+                ) : (
+                  <div className="w-4 h-4 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-[9px]">
+                    {currentUser.name[0]}
+                  </div>
+                )}
+                <span className="max-w-[100px] truncate">{currentUser.name}</span>
+                <span className="text-[10px] text-[#6B779C] font-mono select-none">
+                  {currentUser.viewer_tz}
+                </span>
+              </div>
+
+              {/* Timezone picker */}
+              <select
+                value={currentUser.viewer_tz}
+                onChange={(e) => handleUpdateTimezone(e.target.value)}
+                className="bg-[#070A14] border border-white/10 text-[#AEB9D6] rounded-full text-[10px] px-2.5 py-1 focus:outline-none focus:border-[#6D8BFF] font-mono hover:border-white/20 transition-all cursor-pointer"
+              >
+                <option value="America/New_York">America/New_York</option>
+                <option value="America/Los_Angeles">America/Los_Angeles</option>
+                <option value="Europe/London">Europe/London</option>
+                <option value="Asia/Kolkata">Asia/Kolkata</option>
+                <option value="Asia/Tokyo">Asia/Tokyo</option>
+                <option value="Australia/Sydney">Australia/Sydney</option>
+              </select>
+
+              {/* Presentational AI copilot side bar trigger */}
+              <button
+                onClick={() => setIsCopilotOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-tr from-indigo-500/80 to-purple-500/80 border border-indigo-400/30 text-[10px] text-[#EAF0FF] font-bold rounded-full pulse-glow hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+              >
+                <Sparkles className="h-3 w-3 text-[#5EEAD4] animate-spin-slow" />
+                <span className="hidden md:inline">Ask AI Assist</span>
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className="p-1.5 bg-[#141b30]/40 border border-white/5 text-slate-400 hover:text-red-400 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+                title="Logout session"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* 2. MAIN DYNAMIC TAB CONTENT AREA */}
+        <div className="flex-1 overflow-auto relative z-0 no-scrollbar">
+          {activeTab === "scheduling" ? (
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+              {/* KPI stat bar chip dashboard header */}
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35 }}
+                className="flex flex-wrap gap-3.5 mb-6.5 select-none"
+              >
+                <div className="bg-[#141b30]/45 border border-white/5 rounded-xl px-4 py-2.5 flex items-center gap-2.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(109,139,255,0.7)]" />
+                  <span className="text-xs text-[#AEB9D6]">
+                    Active Teammates selected: <strong className="text-white"><CountUp value={selectedPeopleIds.length} /></strong>
+                  </span>
+                </div>
+                {weekData?.rankedSummary && (
+                  <div className="bg-[#141b30]/45 border border-white/5 rounded-xl px-4 py-2.5 flex items-center gap-2.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)] animate-pulse" />
+                    <span className="text-xs text-[#AEB9D6]">
+                      Consensus Slots Spotted: <strong className="text-white"><CountUp value={weekData.rankedSummary.length} /></strong>
+                    </span>
+                  </div>
+                )}
+                <div className="bg-[#141b30]/45 border border-white/5 rounded-xl px-4 py-2.5 flex items-center gap-2.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-purple-400 shadow-[0_0_8px_rgba(167,139,250,0.7)]" />
+                  <span className="text-xs text-[#AEB9D6]">
+                    Filtered filters: <strong className="text-white"><CountUp value={preferences.muted_titles?.length || 0} /> rules</strong>
+                  </span>
+                </div>
+              </motion.div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 items-start">
+                
+                {/* sidebar - Left column (Desktop only) */}
+                <aside className="hidden lg:block space-y-6">
+                  <div className="flex items-center justify-between bg-[#141b30]/40 border border-white/5 rounded-xl px-4 py-2 hover:border-[#6D8BFF]/25 transition-all">
+                    <span className="text-[10px] tracking-wider uppercase font-bold text-[#8E9BBF]">Local Cache Sync</span>
+                    <button
+                      onClick={handleSyncFreshReload}
+                      className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/25 text-teal-400 text-[10px] uppercase font-bold tracking-wider transition-all cursor-pointer"
+                      title="Force refresh calendars & clear cache"
+                    >
+                      <RefreshCw className={`h-3 w-3 ${loadingWeek ? "animate-spin" : ""}`} />
+                      Sync
+                    </button>
+                  </div>
+
+                  <PeopleSelector
+                    people={people}
+                    selectedIds={selectedPeopleIds}
+                    onTogglePerson={handleTogglePerson}
+                    onSelectAll={handleSelectAll}
+                    onSelectNone={handleSelectNone}
+                    preferences={preferences}
+                    onUpdatePrefs={handleUpdatePrefs}
+                    onAddRosterPerson={handleAddRosterPerson}
+                    onDeletePerson={handleDeletePerson}
+                  />
+
+                  {/* working segments manager */}
+                  <HoursSelector
+                    segments={userWorkHours}
+                    onSaveSegments={handleSaveSegments}
+                  />
+
+                  {/* sub-calendars list tracker */}
+                  <div className="glass-panel rounded-2xl p-4.5">
+                    <h4 className="font-display text-xs font-semibold text-[#EAF0FF] mb-2.5 flex items-center gap-1.5">
+                      <CalendarRange className="h-4 w-4 text-emerald-400" />
+                      Active Calendars list
+                    </h4>
+                    <div className="space-y-1.5 max-h-32 overflow-y-auto no-scrollbar">
+                      {calendars.map((c, idx) => (
+                        <label key={idx} className="flex items-center gap-2 text-[11px] text-[#AEB9D6] hover:text-[#EAF0FF] cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={c.include}
+                            className="rounded border-[#6B779C] text-[#6D8BFF] focus:ring-[#6D8BFF] cursor-pointer"
+                            onChange={() => {
+                              const updated = [...calendars];
+                              updated[idx].include = !updated[idx].include;
+                              setCalendars(updated);
+                              handleUpdatePrefs({});
+                            }}
+                          />
+                          <span className="truncate">{c.summary}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </aside>
+
+                {/* Main workspace widgets */}
+                <section className="space-y-8 flex-1 min-w-0">
+                  
+                  {/* Nav controls */}
+                  <div className="flex items-center justify-between glass-panel rounded-2xl p-4 select-none">
+                    <div>
+                      <span className="text-[10px] text-[#6B779C] uppercase tracking-wider font-bold font-mono">
+                        Active Focus Week
+                      </span>
+                      <span className="font-display block text-sm font-bold text-[#EAF0FF]">
+                        Week of {DateTime.fromISO(currentWeekStart).toFormat("MMMM dd, yyyy")}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleShiftWeek(-1)}
+                        className="p-1.5 bg-slate-900/40 hover:bg-slate-800 text-slate-300 border border-white/5 rounded-xl transition-all cursor-pointer"
+                        title="Previous Week"
+                      >
+                        <ChevronLeft className="h-4.5 w-4.5" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          const mon = DateTime.now().setZone("America/New_York").startOf("week");
+                          setCurrentWeekStart(mon.toFormat("yyyy-MM-dd"));
+                        }}
+                        className="px-3.5 py-1.5 bg-slate-900/40 hover:bg-slate-800 text-xs font-semibold text-[#EAF0FF] border border-white/5 rounded-xl transition-all cursor-pointer"
+                      >
+                        Go to Today
+                      </button>
+                      <button
+                        onClick={() => handleShiftWeek(1)}
+                        className="p-1.5 bg-slate-900/40 hover:bg-slate-800 text-slate-300 border border-white/5 rounded-xl transition-all cursor-pointer"
+                        title="Next Week"
+                      >
+                        <ChevronRight className="h-4.5 w-4.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 1. WEEK OVERLAP HEATMAP SCANNER */}
+                  <WeekHeatmap
+                    weekData={weekData ? weekData.days : null}
+                    selectedIds={selectedPeopleIds}
+                    activeDate={DateTime.now().setZone("America/New_York").toFormat("yyyy-MM-dd")}
+                    openDays={openDays}
+                    onToggleDay={handleToggleDay}
+                    workingHoursOnly={preferences.working_hours_only}
+                  />
+
+                  {/* 2. CHRONOLOGICAL SUMMARY RANKED BEST RUNS */}
+                  {weekData && weekData.rankedSummary && weekData.rankedSummary.length > 0 && (
+                    <div className="glass-panel rounded-2xl p-5">
+                      <h4 className="font-display text-xs font-bold text-[#EAF0FF] uppercase tracking-wider mb-3.5 flex items-center gap-1.5">
+                        <Star className="h-4 w-4 text-[#A78BFA]" />
+                        optimal overlap schedules identified
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {weekData.rankedSummary.map((item, idx) => {
+                          const startHr = Math.floor(item.slot.start);
+                          const startMin = Math.round((item.slot.start - startHr) * 60);
+                          const endHr = Math.floor(item.slot.end);
+                          const endMin = Math.round((item.slot.end - endHr) * 60);
+
+                          const timeRepresentation = `${String(startHr).padStart(2, "0")}:${String(startMin).padStart(2, "0")} - ${String(endHr).padStart(2, "0")}:${String(endMin).padStart(2, "0")}`;
+
+                          return (
+                            <motion.div
+                              key={idx}
+                              whileHover={{ y: -3, scale: 1.01 }}
+                              transition={{ type: "spring", stiffness: 450, damping: 25 }}
+                              onClick={() => {
+                                if (!openDays.includes(item.date)) {
+                                  handleToggleDay(item.date);
+                                }
+                              }}
+                              className="bg-slate-900/60 border border-white/5 hover:border-[#6D8BFF]/45 rounded-xl p-3.5 transition-all cursor-pointer flex flex-col justify-between shadow-md"
+                            >
+                              <div>
+                                <div className="flex items-center justify-between mb-1.5">
+                                  <span className="text-xs font-bold text-teal-300">
+                                    {item.dayName} &bull; {item.formattedDate}
+                                  </span>
+                                  <span className="text-[10px] text-[#A78BFA] font-mono font-bold uppercase tracking-wider">
+                                    Rank #{idx + 1}
+                                  </span>
+                                </div>
+                                <span className="text-sm font-semibold font-mono text-[#EAF0FF]">
+                                  {timeRepresentation}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between mt-3 text-[10px] text-slate-500 font-mono">
+                                <span>Duration: {item.slot.duration} hours</span>
+                                <span className="text-[#34D399] font-bold">&#10003; Overlap Ready</span>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Empty stats state placeholder if no teammate selected */}
+                  {selectedPeopleIds.length === 0 && (
+                    <div className="glass-panel rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-3">
+                      <Bot className="h-10 w-10 text-[#6D8BFF] opacity-40 animate-pulse" />
+                      <h4 className="text-base font-display font-bold text-[#EAF0FF]">No Overlaps Loaded</h4>
+                      <p className="text-xs text-[#AEB9D6] max-w-sm">
+                        Please select at least one teammate from the left roster layout to map their calendaravailability coordinates.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* 3. STACKED DAY DETAILS PANEL CONTAINER WITH ANIMATED LAYOUTS */}
+                  <div className="space-y-6">
+                    <AnimatePresence mode="popLayout">
+                      {openDays.map((dateStr) => {
+                        const dayDetail = daysDetailsCache[dateStr];
+                        const loading = loadingDays[dateStr];
+
+                        if (loading && !dayDetail) {
+                          return (
+                            <motion.div
+                              key={dateStr}
+                              initial={{ opacity: 0, scale: 0.98, y: 15 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.98 }}
+                              className="border border-white/5 bg-slate-900/40 rounded-2xl h-36 flex flex-col items-center justify-center text-slate-400 text-xs animate-pulse"
+                            >
+                              <Zap className="h-5 w-5 text-indigo-400 animate-spin mb-2" />
+                              <span>Reconstructing agenda timeline for {dateStr}...</span>
+                            </motion.div>
+                          );
+                        }
+
+                        if (dayDetail) {
+                          return (
+                            <motion.div 
+                              layout 
+                              key={dateStr}
+                              transition={{ type: "spring", stiffness: 350, damping: 28 }}
+                            >
+                              <DayGanttPanel
+                                dayData={dayDetail}
+                                selectedIds={selectedPeopleIds}
+                                onClose={() => handleToggleDay(dateStr)}
+                                workingHoursOnly={preferences.working_hours_only}
+                                viewerTz={currentUser.viewer_tz}
+                              />
+                            </motion.div>
+                          );
+                        }
+
+                        return null;
+                      })}
+                    </AnimatePresence>
+                  </div>
+                </section>
+              </div>
+            </div>
+          ) : activeTab === "weekly" ? (
+            <WeeklyHorizon />
+          ) : activeTab === "daily" ? (
+            <DailyFocus />
+          ) : (
+            <AICopilotTab />
+          )}
         </div>
       </main>
 
@@ -735,13 +894,55 @@ export default function App() {
               <div className="flex items-center justify-between border-b border-white/5 pb-3 file-line">
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded bg-gradient-to-tr from-indigo-500 to-teal-400 flex items-center justify-center text-white text-xs font-bold">F</div>
-                  <span className="font-display font-semibold text-xs text-[#EAF0FF]">Sync Settings</span>
+                  <span className="font-display font-semibold text-xs text-[#EAF0FF]">Faria Navigation</span>
                 </div>
                 <button 
                   onClick={() => setMobileSidebarOpen(false)} 
                   className="p-1.5 rounded-lg bg-white/5 text-slate-400 hover:text-white"
                 >
                   <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Mobile Navigation List */}
+              <nav className="space-y-1.5 pb-4 border-b border-white/5">
+                {[
+                  { id: "scheduling", label: "Scheduling Hub", icon: CalendarDays },
+                  { id: "weekly", label: "Weekly Horizon", icon: Layout },
+                  { id: "daily", label: "Daily Focus", icon: Clock },
+                  { id: "ai", label: "AI Copilot", icon: Sparkles },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setActiveTab(item.id);
+                        setMobileSidebarOpen(false);
+                      }}
+                      className={`w-full flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 text-xs font-semibold tracking-wide border ${
+                        isActive 
+                          ? "bg-white/10 text-indigo-300 border-white/10 shadow-md" 
+                          : "text-gray-400 hover:bg-white/5 hover:text-gray-200 border-transparent"
+                      }`}
+                    >
+                      <Icon size={14} className={`mr-3 ${isActive ? "text-indigo-400 font-bold" : ""}`} />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+
+              <div className="flex items-center justify-between bg-[#141b30]/40 border border-white/5 rounded-xl px-4 py-2 hover:border-[#6D8BFF]/25 transition-all">
+                <span className="text-[10px] tracking-wider uppercase font-bold text-[#8E9BBF]">Local Cache Sync</span>
+                <button
+                  onClick={handleSyncFreshReload}
+                  className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/25 text-teal-400 text-[10px] uppercase font-bold tracking-wider transition-all cursor-pointer"
+                  title="Force refresh calendars & clear cache"
+                >
+                  <RefreshCw className={`h-3 w-3 ${loadingWeek ? "animate-spin" : ""}`} />
+                  Sync
                 </button>
               </div>
 

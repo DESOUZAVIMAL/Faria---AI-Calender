@@ -117,85 +117,61 @@ export default function AICopilotPanel({ isOpen, onClose, selectedTeammates }: A
     setInputValue("");
     setIsTyping(true);
 
-    // Simulate AI thinking and streaming
-    setTimeout(() => {
-      // Create a reasoning thought block
-      const thinkingMsg: Message = {
-        id: `thinking-${Date.now()}`,
-        sender: "ai",
-        text: "Scanning 7-day teammate rosters & evaluating cross-clock overlap coefficients...",
-        type: "thinking"
-      };
-      
-      setMessages(prev => [...prev, thinkingMsg]);
+    const thinkingMsg: Message = {
+      id: `thinking-${Date.now()}`,
+      sender: "ai",
+      text: "Scanning 7-day teammate rosters & evaluating cross-clock overlap coefficients...",
+      type: "thinking"
+    };
+    
+    setMessages(prev => [...prev, thinkingMsg]);
 
-      setTimeout(() => {
-        // Remove thinking message
+    const localTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    fetch("/api/copilot", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userMessage: text,
+        selectedTeammates: selectedTeammates,
+        currentUserTimezone: localTz
+      })
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to receive copilot answer.");
+        }
+        return res.json();
+      })
+      .then((data) => {
         setMessages(prev => prev.filter(m => m.id !== thinkingMsg.id));
         
-        let replyText = "";
-        let toolCall: Message | null = null;
-        let genWidget: Message | null = null;
-
-        const isOutlierReq = text.toLowerCase().includes("outlier") || text.toLowerCase().includes("chart");
-
-        if (text.toLowerCase().includes("everyone") || text.toLowerCase().includes("45m")) {
-          replyText = "I found a perfect 90-minute consensus overlap window on Tuesday, June 23 when all active team members are on duty on their respective local time clocks. Would you like me to reserve this block?";
-          toolCall = {
-            id: `tool-${Date.now()}`,
-            sender: "ai",
-            text: "",
-            type: "tool_call",
-            toolInfo: {
-              toolName: "Google Calendar Core Coordinator",
-              params: {
-                Event: "Weekly Team Standup Sync",
-                Date: "Tuesday, June 23, 2026",
-                Time: "10:30 AM - 12:00 PM (EST)",
-                Participants: `${selectedTeammates.length} members selected`
-              },
-              status: "pending"
-            }
-          };
-        } else if (isOutlierReq) {
-          replyText = "Sure! I have compiled our real-time outlier matrix and formatted standard timezone overlaps into a high-fidelity Generative UI chart block. You can slide the threshold controller below to interactively prune distant clocks:";
-          genWidget = {
-            id: `widget-${Date.now()}`,
-            sender: "ai",
-            text: "",
-            type: "generative_widget",
-            widgetData: {
-              outliers: [
-                { name: "Liam Chen", tz: "Asia/Singapore", diff: 12, coefficient: 85 },
-                { name: "Chloe Dupont", tz: "Europe/Paris", diff: 6, coefficient: 60 },
-                { name: "Kenji Sato", tz: "Asia/Tokyo", diff: 13, coefficient: 92 },
-                { name: "Sarah Connor", tz: "America/Los_Angeles", diff: -3, coefficient: 40 }
-              ],
-              recommendedGap: "10:00 AM - 11:30 AM EST"
-            }
-          };
-        } else if (text.toLowerCase().includes("conflict") || text.toLowerCase().includes("tomorrow")) {
-          replyText = "Analyzing tomorrow's agenda. Liam has a late afternoon local standup meeting, and Chloe is out of office after 4 PM local time. Your optimal window to meet is between 11:00 AM and 1:00 PM EST.";
-        } else {
-          replyText = "I parsed your query against active calendars. Faria is fully configured with persistent storage and domain filtration to keep event data private.";
-        }
-
         const aiMsg: Message = {
           id: `ai-${Date.now()}`,
           sender: "ai",
-          text: replyText,
+          text: data.reply || "I parsed your query against active calendars. Faria is fully configured with persistent storage and domain filtration to keep event data private.",
           type: "text"
         };
 
-        const finalToAdd: Message[] = [aiMsg];
-        if (toolCall) finalToAdd.push(toolCall);
-        if (genWidget) finalToAdd.push(genWidget);
-
-        setMessages(prev => [...prev, ...finalToAdd]);
+        setMessages(prev => [...prev, aiMsg]);
         setIsTyping(false);
-      }, 1500);
+      })
+      .catch((err) => {
+        console.error("Copilot request error:", err);
+        setMessages(prev => prev.filter(m => m.id !== thinkingMsg.id));
+        
+        const aiMsg: Message = {
+          id: `ai-err-${Date.now()}`,
+          sender: "ai",
+          text: `Failed to connect with Faria AI services: ${err.message || "Unknown error"}. Check key configuration.`,
+          type: "text"
+        };
 
-    }, 800);
+        setMessages(prev => [...prev, aiMsg]);
+        setIsTyping(false);
+      });
   };
 
   const handleResolveTool = (msgId: string, finalStatus: "approved" | "rejected") => {
