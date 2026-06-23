@@ -14,6 +14,7 @@ import HoursSelector from "./components/HoursSelector";
 import AICopilotPanel from "./components/AICopilotPanel";
 import WeeklyHorizon from "./components/WeeklyHorizon";
 import DailyFocus from "./components/DailyFocus";
+import LandingPage from "./components/LandingPage";
 
 import { 
   Calendar, 
@@ -402,51 +403,10 @@ export default function App() {
   // Render Logged Out landing screen
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-[#070A14] flex flex-col items-center justify-center p-6 aurora-bg">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95, y: 15 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ type: "spring", stiffness: 350, damping: 28 }}
-          className="w-full max-w-lg border border-white/8 bg-[#141b30]/55 backdrop-blur-md rounded-2xl p-8 text-center shadow-2xl space-y-6"
-        >
-          <div className="mx-auto w-14 h-14 bg-gradient-to-tr from-indigo-500 to-teal-400 rounded-2xl flex items-center justify-center shadow-lg hover:rotate-3 transition-transform">
-            <Calendar className="h-7 w-7 text-white" />
-          </div>
-
-          <div className="space-y-2">
-            <h1 className="font-display text-2xl font-bold tracking-tight text-[#EAF0FF]">
-              Faria Calendar
-            </h1>
-            <p className="text-xs text-[#AEB9D6] max-w-md mx-auto leading-relaxed">
-              The cross-timezone availability, scheduler, and visual sync engine designed specifically for remote-first teams. Map fragmented hours, bypass calendar noise, and instantly spot overlaps.
-            </p>
-          </div>
-
-          <div className="bg-amber-400/5 border border-amber-400/10 text-amber-200/90 text-[11px] p-3 rounded-xl max-w-sm mx-auto text-left flex items-start gap-2.5">
-            <Info className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
-            <div>
-              <p className="font-bold mb-0.5">Note on Domain Delegation:</p>
-              <span>Domain-wide delegation is recommended for 200&ndash;300 seats. For instant previews, Developer Demo mode is supported too!</span>
-            </div>
-          </div>
-
-          <div className="space-y-2.5 pt-4">
-            <button
-              onClick={handleGoogleSignIn}
-              className="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-650 hover:to-purple-650 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(109,139,255,0.45)] transition-all cursor-pointer text-xs"
-            >
-              Sign in with Google Work Google Calendar Account
-            </button>
-
-            <button
-              onClick={handleDemoSignIn}
-              className="w-full py-2.5 bg-[#070A14] border border-white/10 hover:border-white/20 text-[#AEB9D6] hover:text-[#EAF0FF] text-xs font-semibold rounded-xl transition-all cursor-pointer"
-            >
-              Explore Instant Developer Mock Demo with sample data
-            </button>
-          </div>
-        </motion.div>
-      </div>
+      <LandingPage 
+        onGoogleSignIn={handleGoogleSignIn} 
+        onDemoSignIn={handleDemoSignIn} 
+      />
     );
   }
 

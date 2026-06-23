@@ -1,10 +1,34 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito+Sans:opsz,wght@6..12,300;6..12,400;6..12,600;6..12,700;6..12,800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk", sans-serif;
+  --font-sans: "Nunito Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Nunito Sans", "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-faria-plum: #37023c;
+  --color-faria-darkPlum: #391638;
+  --color-faria-dark-plum: #391638;
+  --color-faria-orange: #F78843;
+  --color-faria-lightOrange: #FBC5A1;
+  --color-faria-light-orange: #FBC5A1;
+  --color-faria-paper: #F0EBEB;
+  --color-faria-lightPlum: #552859;
+  --color-faria-light-plum: #552859;
+  --color-faria-pink: #E837AC;
+  --color-faria-lightPink: #F6AFDE;
+  --color-faria-light-pink: #F6AFDE;
+  --color-faria-yellow: #F7D35F;
+  --color-faria-lightYellow: #FAE59F;
+  --color-faria-light-yellow: #FAE59F;
+
+  --animate-shine: shine 1.5s ease-out infinite;
+
+  @keyframes shine {
+    100% {
+      transform: translateX(250%);
+    }
+  }
 }
 
 /* Custom aurora glow background style */
