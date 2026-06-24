@@ -109,11 +109,11 @@ export default function WeekHeatmap({
           <h3 className="font-display text-base font-semibold text-[#EAF0FF] tracking-wide">
             7-Day Overlap Heatmap
           </h3>
-          <p className="text-xs text-[#6B779C] mt-0.5">
-            Bright green cells indicate slots where most of your <span className="font-mono font-medium text-indigo-400">{selectedIds.length}</span> chosen teammates are free.
+          <p className="text-sm text-[#6B779C] mt-0.5">
+            Bright green cells indicate slots where most of your <span className="font-mono font-medium text-faria-pink">{selectedIds.length}</span> chosen teammates are free.
           </p>
         </div>
-        <div className="flex items-center gap-1.5 text-[10px] text-amber-300 bg-amber-400/5 hover:bg-amber-400/10 border border-amber-400/10 px-2.5 py-1 rounded-full select-none">
+        <div className="flex items-center gap-1.5 text-xs text-amber-300 bg-amber-400/5 hover:bg-amber-400/10 border border-amber-400/10 px-2.5 py-1 rounded-full select-none">
           <AlertCircle className="h-3 w-3" />
           <span>Viewer Zone Clock</span>
         </div>
@@ -121,7 +121,7 @@ export default function WeekHeatmap({
 
       <div className="grid grid-cols-[auto_repeat(7,1fr)] gap-1.5 overflow-x-auto select-none no-scrollbar">
         {/* Hour Header cell */}
-        <div className="w-12 text-right pr-2 text-[10px] text-[#6B779C] font-semibold mt-10">
+        <div className="w-12 text-right pr-2 text-xs text-[#6B779C] font-semibold mt-10">
           Time
         </div>
 
@@ -139,22 +139,22 @@ export default function WeekHeatmap({
               onClick={() => onToggleDay(day.date)}
               className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all duration-200 transform hover:scale-[1.03] hover:shadow-lg group cursor-pointer ${
                 isToday 
-                  ? "bg-[#6D8BFF]/15 border-[#6D8BFF]/45 text-[#EAF0FF] shadow-[0_0_15px_rgba(109,139,255,0.15)]" 
+                  ? "bg-faria-pink/15 border-faria-pink/45 text-faria-paper shadow-[0_0_15px_rgba(232,55,172,0.2)]" 
                   : isOpen 
-                    ? "bg-white/8 border-white/15 text-[#EAF0FF]"
-                    : `border-transparent text-[#AEB9D6] ${isWeekend ? "bg-slate-900/15 opacity-80 hover:opacity-100 hover:bg-white/5" : "hover:bg-white/5"}`
+                    ? "bg-white/8 border-white/15 text-faria-paper"
+                    : `border-transparent text-[#AEB9D6] ${isWeekend ? "bg-faria-lightPlum/10 opacity-80 hover:opacity-100 hover:bg-white/5" : "hover:bg-white/5"}`
               }`}
             >
-               <span className="text-[10px] uppercase tracking-wider font-bold text-[#6B779C] font-mono">
+               <span className="text-xs uppercase tracking-wider font-bold text-[#6B779C] font-mono">
                 {day.dayName}
-              </span>
-              <span className="text-sm font-display font-medium leading-none mt-1">
+               </span>
+              <span className="text-base font-display font-medium leading-none mt-1">
                 {day.formattedDate.split(" ")[1]}
               </span>
-              <span className={`text-[9px] mt-1.5 px-2 py-0.5 rounded-full font-semibold transition-all ${
+              <span className={`text-[11px] mt-1.5 px-2 py-0.5 rounded-full font-semibold transition-all ${
                 isOpen 
-                  ? "bg-indigo-500/25 text-[#5EEAD4] border border-indigo-500/20 shadow-[0_0_8px_rgba(94,234,212,0.2)]" 
-                  : "bg-slate-900/65 text-[#6B779C] group-hover:bg-[#6D8BFF]/10 group-hover:text-[#6D8BFF]"
+                  ? "bg-faria-pink/25 text-faria-yellow border border-faria-pink/20 shadow-[0_0_8px_rgba(232,55,172,0.2)]" 
+                  : "bg-faria-plum/65 text-[#6B779C] group-hover:bg-faria-pink/10 group-hover:text-faria-pink"
               }`}>
                 {isOpen ? "Open" : "View"}
               </span>
@@ -166,7 +166,7 @@ export default function WeekHeatmap({
         {hoursRange.map((hr) => (
           <React.Fragment key={hr}>
             {/* Hour Label Column */}
-            <div className="flex items-center justify-end pr-2 text-[10px] font-mono font-medium text-[#6B779C] h-7">
+            <div className="flex items-center justify-end pr-2 text-xs font-mono font-medium text-[#6B779C] h-7">
               {formatHourLabel(hr)}
             </div>
 
@@ -182,7 +182,7 @@ export default function WeekHeatmap({
                   onMouseEnter={() => setHoveredCell({ dayIndex: dIdx, hour: hr })}
                   onMouseLeave={() => setHoveredCell(null)}
                   onClick={() => onToggleDay(day.date)}
-                  className={`h-7 rounded-md cursor-pointer flex items-center justify-center text-[10px] font-mono font-semibold transition-[transform,background-color,box-shadow,filter] duration-150 relative hover:-translate-y-0.5 hover:z-10 hover:scale-105 hover:shadow-[0_0_12px_rgba(109,139,255,0.4)] hover:brightness-110 ${getCellColorClass(freeCount, total, isWeekend)}`}
+                  className={`h-7 rounded-md cursor-pointer flex items-center justify-center text-xs font-mono font-semibold transition-[transform,background-color,box-shadow,filter] duration-150 relative hover:-translate-y-0.5 hover:z-10 hover:scale-105 hover:shadow-[0_0_12px_rgba(232,55,172,0.45)] hover:brightness-110 ${getCellColorClass(freeCount, total, isWeekend)}`}
                   title={`${day.dayName} ${formatHourLabel(hr)}: ${freeCount}/${total} free`}
                 >
                   {total > 0 && (
@@ -198,7 +198,7 @@ export default function WeekHeatmap({
       </div>
 
       <div 
-        className={`mt-4 flex items-center justify-between text-xs text-[#AEB9D6] bg-[#070A14] border border-white/8 rounded-xl px-4 py-3 shadow-[inset_0_1px_4px_rgba(0,0,0,0.5)] transition-all duration-200 ${
+        className={`mt-4 flex items-center justify-between text-sm text-[#AEB9D6] bg-faria-plum border border-white/8 rounded-xl px-4 py-3 shadow-[inset_0_1px_4px_rgba(0,0,0,0.5)] transition-all duration-200 ${
           hoveredCell !== null && weekData[hoveredCell.dayIndex] ? "opacity-100 translate-y-0" : "opacity-0 pointer-events-none translate-y-2"
         }`}
       >
@@ -217,7 +217,7 @@ export default function WeekHeatmap({
             )}
           </span>
         </div>
-        <span className="text-[10px] text-[#6B779C] italic">Click cell or header to open detailed Gantt</span>
+        <span className="text-xs text-[#6B779C] italic">Click cell or header to open detailed Gantt</span>
       </div>
     </motion.div>
   );

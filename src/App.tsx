@@ -391,8 +391,8 @@ export default function App() {
 
   if (loadingUser) {
     return (
-      <div className="min-h-screen bg-[#070A14] flex flex-col items-center justify-center text-[#EAF0FF] aurora-bg select-none">
-        <Zap className="h-10 w-10 text-indigo-400 animate-pulse mb-4" />
+      <div className="min-h-screen bg-faria-plum flex flex-col items-center justify-center text-faria-paper aurora-bg select-none">
+        <Zap className="h-10 w-10 text-faria-pink animate-pulse mb-4" />
         <p className="text-sm font-display font-medium tracking-wide animate-pulse">
           Syncing team availability & timezone matrices...
         </p>
@@ -411,16 +411,16 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen bg-[#070A14] text-[#EAF0FF] overflow-hidden aurora-bg select-none">
+    <div className="flex h-screen bg-faria-plum text-faria-paper overflow-hidden aurora-bg select-none">
       
       {/* 0. PERSISTENT LEFT SIDEBAR */}
-      <aside className="w-64 flex flex-col bg-[#141b30]/35 border-r border-white/5 backdrop-blur-xl shrink-0 z-20 hidden lg:flex select-none">
+      <aside className="w-64 flex flex-col bg-faria-darkPlum/35 border-r border-white/5 backdrop-blur-xl shrink-0 z-20 hidden lg:flex select-none">
         {/* App Branding */}
         <div className="h-16 flex items-center px-6 border-b border-white/5 shrink-0">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center mr-3 shadow-[0_0_15px_rgba(79,70,229,0.3)]">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-faria-orange via-faria-pink to-faria-yellow flex items-center justify-center mr-3 shadow-[0_0_15px_rgba(232,55,172,0.35)]">
             <Sparkles size={14} className="text-white animate-pulse" />
           </div>
-          <h1 className="text-sm font-display font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-[#AEB9D6] tracking-wide">
+          <h1 className="text-sm font-display font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-faria-paper tracking-wide">
             Faria Calendar
           </h1>
         </div>
@@ -441,11 +441,11 @@ export default function App() {
                 onClick={() => setActiveTab(item.id)}
                 className={`w-full flex items-center px-4 py-3 rounded-xl transition-all duration-200 text-xs font-semibold tracking-wide border ${
                   isActive 
-                    ? "bg-white/10 text-indigo-300 border-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.15)] bg-slate-900/30" 
+                    ? "bg-white/10 text-faria-pink border-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.15)] bg-faria-lightPlum/20" 
                     : "text-gray-400 hover:bg-white/5 hover:text-gray-200 border-transparent"
                 }`}
               >
-                <Icon size={15} className={`mr-3 ${isActive ? "text-indigo-400 font-bold" : ""}`} />
+                <Icon size={15} className={`mr-3 ${isActive ? "text-faria-pink font-bold" : ""}`} />
                 <span>{item.label}</span>
               </button>
             );
@@ -453,10 +453,10 @@ export default function App() {
         </nav>
 
         {/* Info label in sidebar */}
-        <div className="p-4 border-t border-white/5 bg-[#141b30]/10 shrink-0">
+        <div className="p-4 border-t border-white/5 bg-faria-darkPlum/10 shrink-0">
           <div className="flex items-center gap-2 px-2 py-1">
-            <div className="w-2 h-2 rounded-full bg-teal-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.7)]" />
-            <span className="text-[9px] font-mono tracking-wider font-bold text-teal-400">SECURE ENDPOINT ACTIVE</span>
+            <div className="w-2 h-2 rounded-full bg-faria-pink animate-pulse shadow-[0_0_8px_rgba(232,55,172,0.7)]" />
+            <span className="text-[9px] font-mono tracking-wider font-bold text-faria-pink">SECURE ENDPOINT ACTIVE</span>
           </div>
         </div>
       </aside>
@@ -465,7 +465,7 @@ export default function App() {
       <main className="flex-1 flex flex-col relative overflow-hidden">
         
         {/* 1. STICKY INTERACTIVE TOP BAR */}
-        <header className="sticky top-0 bg-[#070A14]/75 backdrop-blur-md border-b border-white/5 z-40 select-none shrink-0 h-16 flex items-center">
+        <header className="sticky top-0 bg-faria-plum/75 backdrop-blur-md border-b border-white/5 z-40 select-none shrink-0 h-16 flex items-center">
           <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               {/* Hamburger for mobile */}
@@ -475,13 +475,13 @@ export default function App() {
               >
                 <Menu className="h-4.5 w-4.5" />
               </button>
-
+ 
               <div className="lg:hidden flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-500 to-teal-400 flex items-center justify-center text-white font-bold text-xs shadow">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-faria-orange via-faria-pink to-faria-yellow flex items-center justify-center text-white font-bold text-xs shadow">
                   F
                 </div>
                 <div>
-                  <h1 className="font-display text-xs font-bold tracking-tight text-[#EAF0FF] leading-tight">
+                  <h1 className="font-display text-xs font-bold tracking-tight text-faria-paper leading-tight">
                     Faria Calendar
                   </h1>
                 </div>
@@ -489,10 +489,10 @@ export default function App() {
 
               {/* Dynamic title bar for desktop */}
               <div className="hidden lg:flex flex-col">
-                <h2 className="text-sm font-display font-bold text-[#EAF0FF] uppercase tracking-wider">
+                <h2 className="text-sm font-display font-bold text-faria-paper uppercase tracking-wider">
                   {activeTab === "scheduling" ? "Scheduling Hub" : activeTab === "weekly" ? "Weekly Horizon" : activeTab === "daily" ? "Daily Focus" : "Gemini AI Copilot"}
                 </h2>
-                <span className="text-[10px] text-teal-300 leading-none mt-0.5">
+                <span className="text-[10px] text-faria-pink leading-none mt-0.5">
                   {activeTab === "scheduling" ? "Map multi-timezone calendars & overlaps" : "Platform capability preview block"}
                 </span>
               </div>
@@ -500,7 +500,7 @@ export default function App() {
 
             {/* User badge and logout */}
             <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 bg-[#141b30]/55 border border-white/5 px-3 py-1 rounded-full text-[11px] font-medium text-[#AEB9D6]">
+              <div className="hidden sm:flex items-center gap-2 bg-faria-lightPlum/35 border border-white/5 px-3 py-1 rounded-full text-[11px] font-medium text-faria-paper/70">
                 {currentUser.picture ? (
                   <img
                     src={currentUser.picture}
@@ -509,7 +509,7 @@ export default function App() {
                     className="w-4 h-4 rounded-full"
                   />
                 ) : (
-                  <div className="w-4 h-4 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-[9px]">
+                  <div className="w-4 h-4 rounded-full bg-faria-pink/10 text-faria-pink flex items-center justify-center font-bold text-[9px]">
                     {currentUser.name[0]}
                   </div>
                 )}
@@ -523,7 +523,7 @@ export default function App() {
               <select
                 value={currentUser.viewer_tz}
                 onChange={(e) => handleUpdateTimezone(e.target.value)}
-                className="bg-[#070A14] border border-white/10 text-[#AEB9D6] rounded-full text-[10px] px-2.5 py-1 focus:outline-none focus:border-[#6D8BFF] font-mono hover:border-white/20 transition-all cursor-pointer"
+                className="bg-faria-plum border border-white/10 text-faria-paper/70 rounded-full text-[10px] px-2.5 py-1 focus:outline-none focus:border-faria-pink font-mono hover:border-white/20 transition-all cursor-pointer"
               >
                 <option value="America/New_York">America/New_York</option>
                 <option value="America/Los_Angeles">America/Los_Angeles</option>
@@ -536,15 +536,15 @@ export default function App() {
               {/* Presentational AI copilot side bar trigger */}
               <button
                 onClick={() => setIsCopilotOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-tr from-indigo-500/80 to-purple-500/80 border border-indigo-400/30 text-[10px] text-[#EAF0FF] font-bold rounded-full pulse-glow hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-tr from-faria-orange/85 via-faria-pink/85 to-faria-pink/85 border border-faria-pink/30 text-[10px] text-faria-paper font-bold rounded-full pulse-glow hover:brightness-110 active:scale-95 transition-all cursor-pointer"
               >
-                <Sparkles className="h-3 w-3 text-[#5EEAD4] animate-spin-slow" />
+                <Sparkles className="h-3 w-3 text-faria-yellow animate-spin-slow" />
                 <span className="hidden md:inline">Ask AI Assist</span>
               </button>
 
               <button
                 onClick={handleLogout}
-                className="p-1.5 bg-[#141b30]/40 border border-white/5 text-slate-400 hover:text-red-400 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+                className="p-1.5 bg-faria-lightPlum/20 border border-white/5 text-slate-400 hover:text-red-400 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
                 title="Logout session"
               >
                 <LogOut className="h-3.5 w-3.5" />
@@ -562,25 +562,25 @@ export default function App() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35 }}
-                className="flex flex-wrap gap-3.5 mb-6.5 select-none"
+                 className="flex flex-wrap gap-3.5 mb-6.5 select-none"
               >
-                <div className="bg-[#141b30]/45 border border-white/5 rounded-xl px-4 py-2.5 flex items-center gap-2.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(109,139,255,0.7)]" />
-                  <span className="text-xs text-[#AEB9D6]">
+                <div className="bg-faria-lightPlum/25 border border-white/5 rounded-xl px-4 py-2.5 flex items-center gap-2.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-faria-pink shadow-[0_0_8px_rgba(232,55,172,0.7)]" />
+                  <span className="text-sm text-[#AEB9D6]">
                     Active Teammates selected: <strong className="text-white"><CountUp value={selectedPeopleIds.length} /></strong>
                   </span>
                 </div>
                 {weekData?.rankedSummary && (
-                  <div className="bg-[#141b30]/45 border border-white/5 rounded-xl px-4 py-2.5 flex items-center gap-2.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)] animate-pulse" />
-                    <span className="text-xs text-[#AEB9D6]">
+                  <div className="bg-faria-lightPlum/25 border border-white/5 rounded-xl px-4 py-2.5 flex items-center gap-2.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#4DFFA0] shadow-[0_0_8px_rgba(77,255,160,0.7)] animate-pulse" />
+                    <span className="text-sm text-[#AEB9D6]">
                       Consensus Slots Spotted: <strong className="text-white"><CountUp value={weekData.rankedSummary.length} /></strong>
                     </span>
                   </div>
                 )}
-                <div className="bg-[#141b30]/45 border border-white/5 rounded-xl px-4 py-2.5 flex items-center gap-2.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-purple-400 shadow-[0_0_8px_rgba(167,139,250,0.7)]" />
-                  <span className="text-xs text-[#AEB9D6]">
+                <div className="bg-faria-lightPlum/25 border border-white/5 rounded-xl px-4 py-2.5 flex items-center gap-2.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-faria-yellow shadow-[0_0_8px_rgba(247,211,95,0.7)]" />
+                  <span className="text-sm text-[#AEB9D6]">
                     Filtered filters: <strong className="text-white"><CountUp value={preferences.muted_titles?.length || 0} /> rules</strong>
                   </span>
                 </div>
@@ -590,11 +590,11 @@ export default function App() {
                 
                 {/* sidebar - Left column (Desktop only) */}
                 <aside className="hidden lg:block space-y-6">
-                  <div className="flex items-center justify-between bg-[#141b30]/40 border border-white/5 rounded-xl px-4 py-2 hover:border-[#6D8BFF]/25 transition-all">
-                    <span className="text-[10px] tracking-wider uppercase font-bold text-[#8E9BBF]">Local Cache Sync</span>
+                  <div className="flex items-center justify-between bg-faria-lightPlum/20 border border-white/5 rounded-xl px-4 py-2 hover:border-[#6D8BFF]/25 transition-all">
+                    <span className="text-xs tracking-wider uppercase font-bold text-faria-paper/60">Local Cache Sync</span>
                     <button
                       onClick={handleSyncFreshReload}
-                      className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/25 text-teal-400 text-[10px] uppercase font-bold tracking-wider transition-all cursor-pointer"
+                      className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-faria-pink/10 hover:bg-faria-pink/20 border border-faria-pink/25 text-faria-pink text-xs uppercase font-bold tracking-wider transition-all cursor-pointer"
                       title="Force refresh calendars & clear cache"
                     >
                       <RefreshCw className={`h-3 w-3 ${loadingWeek ? "animate-spin" : ""}`} />
@@ -622,17 +622,17 @@ export default function App() {
 
                   {/* sub-calendars list tracker */}
                   <div className="glass-panel rounded-2xl p-4.5">
-                    <h4 className="font-display text-xs font-semibold text-[#EAF0FF] mb-2.5 flex items-center gap-1.5">
-                      <CalendarRange className="h-4 w-4 text-emerald-400" />
+                    <h4 className="font-display text-sm font-semibold text-faria-paper mb-2.5 flex items-center gap-1.5">
+                      <CalendarRange className="h-4 w-4 text-faria-pink" />
                       Active Calendars list
                     </h4>
                     <div className="space-y-1.5 max-h-32 overflow-y-auto no-scrollbar">
                       {calendars.map((c, idx) => (
-                        <label key={idx} className="flex items-center gap-2 text-[11px] text-[#AEB9D6] hover:text-[#EAF0FF] cursor-pointer">
+                        <label key={idx} className="flex items-center gap-2 text-xs text-[#AEB9D6] hover:text-faria-paper cursor-pointer">
                           <input
                             type="checkbox"
                             checked={c.include}
-                            className="rounded border-[#6B779C] text-[#6D8BFF] focus:ring-[#6D8BFF] cursor-pointer"
+                            className="rounded border-faria-pink/30 text-faria-pink focus:ring-faria-pink cursor-pointer bg-faria-plum/40"
                             onChange={() => {
                               const updated = [...calendars];
                               updated[idx].include = !updated[idx].include;
@@ -653,10 +653,10 @@ export default function App() {
                   {/* Nav controls */}
                   <div className="flex items-center justify-between glass-panel rounded-2xl p-4 select-none">
                     <div>
-                      <span className="text-[10px] text-[#6B779C] uppercase tracking-wider font-bold font-mono">
+                      <span className="text-xs text-faria-paper/55 uppercase tracking-wider font-bold font-mono">
                         Active Focus Week
                       </span>
-                      <span className="font-display block text-sm font-bold text-[#EAF0FF]">
+                      <span className="font-display block text-base font-bold text-faria-paper">
                         Week of {DateTime.fromISO(currentWeekStart).toFormat("MMMM dd, yyyy")}
                       </span>
                     </div>
@@ -664,7 +664,7 @@ export default function App() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleShiftWeek(-1)}
-                        className="p-1.5 bg-slate-900/40 hover:bg-slate-800 text-slate-300 border border-white/5 rounded-xl transition-all cursor-pointer"
+                        className="p-1.5 bg-faria-lightPlum/15 hover:bg-faria-lightPlum/25 text-faria-paper/85 border border-white/5 rounded-xl transition-all cursor-pointer"
                         title="Previous Week"
                       >
                         <ChevronLeft className="h-4.5 w-4.5" />
@@ -672,15 +672,15 @@ export default function App() {
                       <button
                         onClick={() => {
                           const mon = DateTime.now().setZone("America/New_York").startOf("week");
-                          setCurrentWeekStart(mon.toFormat("yyyy-MM-dd"));
+                           setCurrentWeekStart(mon.toFormat("yyyy-MM-dd"));
                         }}
-                        className="px-3.5 py-1.5 bg-slate-900/40 hover:bg-slate-800 text-xs font-semibold text-[#EAF0FF] border border-white/5 rounded-xl transition-all cursor-pointer"
+                        className="px-3.5 py-1.5 bg-faria-lightPlum/15 hover:bg-faria-lightPlum/25 text-sm font-semibold text-faria-paper border border-white/5 rounded-xl transition-all cursor-pointer"
                       >
                         Go to Today
                       </button>
                       <button
                         onClick={() => handleShiftWeek(1)}
-                        className="p-1.5 bg-slate-900/40 hover:bg-slate-800 text-slate-300 border border-white/5 rounded-xl transition-all cursor-pointer"
+                        className="p-1.5 bg-faria-lightPlum/15 hover:bg-faria-lightPlum/25 text-faria-paper/85 border border-white/5 rounded-xl transition-all cursor-pointer"
                         title="Next Week"
                       >
                         <ChevronRight className="h-4.5 w-4.5" />
@@ -701,8 +701,8 @@ export default function App() {
                   {/* 2. CHRONOLOGICAL SUMMARY RANKED BEST RUNS */}
                   {weekData && weekData.rankedSummary && weekData.rankedSummary.length > 0 && (
                     <div className="glass-panel rounded-2xl p-5">
-                      <h4 className="font-display text-xs font-bold text-[#EAF0FF] uppercase tracking-wider mb-3.5 flex items-center gap-1.5">
-                        <Star className="h-4 w-4 text-[#A78BFA]" />
+                      <h4 className="font-display text-sm font-bold text-faria-paper uppercase tracking-wider mb-3.5 flex items-center gap-1.5">
+                        <Star className="h-4 w-4 text-faria-yellow" />
                         optimal overlap schedules identified
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -724,24 +724,24 @@ export default function App() {
                                   handleToggleDay(item.date);
                                 }
                               }}
-                              className="bg-slate-900/60 border border-white/5 hover:border-[#6D8BFF]/45 rounded-xl p-3.5 transition-all cursor-pointer flex flex-col justify-between shadow-md"
+                              className="bg-faria-lightPlum/20 border border-white/5 hover:border-faria-pink/40 rounded-xl p-3.5 transition-all cursor-pointer flex flex-col justify-between shadow-md"
                             >
                               <div>
                                 <div className="flex items-center justify-between mb-1.5">
-                                  <span className="text-xs font-bold text-teal-300">
+                                  <span className="text-sm font-bold text-faria-pink">
                                     {item.dayName} &bull; {item.formattedDate}
                                   </span>
-                                  <span className="text-[10px] text-[#A78BFA] font-mono font-bold uppercase tracking-wider">
+                                  <span className="text-xs text-faria-yellow font-mono font-bold uppercase tracking-wider">
                                     Rank #{idx + 1}
                                   </span>
                                 </div>
-                                <span className="text-sm font-semibold font-mono text-[#EAF0FF]">
+                                <span className="text-base font-semibold font-mono text-faria-paper">
                                   {timeRepresentation}
                                 </span>
                               </div>
-                              <div className="flex items-center justify-between mt-3 text-[10px] text-slate-500 font-mono">
+                              <div className="flex items-center justify-between mt-3 text-xs text-faria-paper/50 font-mono">
                                 <span>Duration: {item.slot.duration} hours</span>
-                                <span className="text-[#34D399] font-bold">&#10003; Overlap Ready</span>
+                                <span className="text-[#4DFFA0] font-bold">&#10003; Overlap Ready</span>
                               </div>
                             </motion.div>
                           );
@@ -753,9 +753,9 @@ export default function App() {
                   {/* Empty stats state placeholder if no teammate selected */}
                   {selectedPeopleIds.length === 0 && (
                     <div className="glass-panel rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-3">
-                      <Bot className="h-10 w-10 text-[#6D8BFF] opacity-40 animate-pulse" />
-                      <h4 className="text-base font-display font-bold text-[#EAF0FF]">No Overlaps Loaded</h4>
-                      <p className="text-xs text-[#AEB9D6] max-w-sm">
+                      <Bot className="h-10 w-10 text-faria-pink opacity-40 animate-pulse" />
+                      <h4 className="text-base font-display font-bold text-faria-paper">No Overlaps Loaded</h4>
+                      <p className="text-sm text-faria-paper/70 max-w-sm">
                         Please select at least one teammate from the left roster layout to map their calendaravailability coordinates.
                       </p>
                     </div>
@@ -836,12 +836,12 @@ export default function App() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", stiffness: 350, damping: 30 }}
-              className="relative flex w-full max-w-xs flex-col bg-[#070A14] p-5 overflow-y-auto border-r border-white/8 space-y-6 no-scrollbar"
+              className="relative flex w-full max-w-xs flex-col bg-faria-plum p-5 overflow-y-auto border-r border-white/8 space-y-6 no-scrollbar"
             >
               <div className="flex items-center justify-between border-b border-white/5 pb-3 file-line">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded bg-gradient-to-tr from-indigo-500 to-teal-400 flex items-center justify-center text-white text-xs font-bold">F</div>
-                  <span className="font-display font-semibold text-xs text-[#EAF0FF]">Faria Navigation</span>
+                  <div className="w-6 h-6 rounded bg-gradient-to-tr from-faria-orange via-faria-pink to-faria-yellow flex items-center justify-center text-white text-xs font-bold">F</div>
+                  <span className="font-display font-semibold text-xs text-faria-paper">Faria Navigation</span>
                 </div>
                 <button 
                   onClick={() => setMobileSidebarOpen(false)} 
@@ -870,22 +870,22 @@ export default function App() {
                       }}
                       className={`w-full flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 text-xs font-semibold tracking-wide border ${
                         isActive 
-                          ? "bg-white/10 text-indigo-300 border-white/10 shadow-md" 
+                          ? "bg-white/10 text-faria-pink border-white/10 shadow-md" 
                           : "text-gray-400 hover:bg-white/5 hover:text-gray-200 border-transparent"
                       }`}
                     >
-                      <Icon size={14} className={`mr-3 ${isActive ? "text-indigo-400 font-bold" : ""}`} />
+                      <Icon size={14} className={`mr-3 ${isActive ? "text-faria-pink font-bold" : ""}`} />
                       <span>{item.label}</span>
                     </button>
                   );
                 })}
               </nav>
 
-              <div className="flex items-center justify-between bg-[#141b30]/40 border border-white/5 rounded-xl px-4 py-2 hover:border-[#6D8BFF]/25 transition-all">
-                <span className="text-[10px] tracking-wider uppercase font-bold text-[#8E9BBF]">Local Cache Sync</span>
+              <div className="flex items-center justify-between bg-faria-lightPlum/20 border border-white/5 rounded-xl px-4 py-2 hover:border-[#6D8BFF]/25 transition-all">
+                <span className="text-[10px] tracking-wider uppercase font-bold text-faria-paper/60">Local Cache Sync</span>
                 <button
                   onClick={handleSyncFreshReload}
-                  className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/25 text-teal-400 text-[10px] uppercase font-bold tracking-wider transition-all cursor-pointer"
+                  className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-faria-pink/10 hover:bg-faria-pink/20 border border-faria-pink/25 text-faria-pink text-[10px] uppercase font-bold tracking-wider transition-all cursor-pointer"
                   title="Force refresh calendars & clear cache"
                 >
                   <RefreshCw className={`h-3 w-3 ${loadingWeek ? "animate-spin" : ""}`} />
@@ -912,17 +912,17 @@ export default function App() {
 
               {/* Sub-calendars list */}
               <div className="glass-panel rounded-2xl p-4.5">
-                <h4 className="font-display text-xs font-semibold text-[#EAF0FF] mb-2.5 flex items-center gap-1.5">
-                  <CalendarRange className="h-4 w-4 text-emerald-400" />
+                <h4 className="font-display text-xs font-semibold text-faria-paper mb-2.5 flex items-center gap-1.5">
+                  <CalendarRange className="h-4 w-4 text-faria-pink" />
                   Active Calendars list
                 </h4>
                 <div className="space-y-1.5 max-h-32 overflow-y-auto no-scrollbar">
                   {calendars.map((c, idx) => (
-                    <label key={idx} className="flex items-center gap-2 text-[11px] text-[#AEB9D6] hover:text-[#EAF0FF] cursor-pointer">
+                    <label key={idx} className="flex items-center gap-2 text-[11px] text-[#AEB9D6] hover:text-faria-paper cursor-pointer">
                       <input
                         type="checkbox"
                         checked={c.include}
-                        className="rounded border-[#6B779C] text-[#6D8BFF] focus:ring-[#6D8BFF] cursor-pointer"
+                        className="rounded border-faria-pink/30 text-faria-pink focus:ring-faria-pink cursor-pointer bg-faria-plum/40"
                         onChange={() => {
                           const updated = [...calendars];
                           updated[idx].include = !updated[idx].include;

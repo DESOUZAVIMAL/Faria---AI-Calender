@@ -51,19 +51,19 @@ export default function HoursSelector({ segments, onSaveSegments }: HoursSelecto
     <div className="glass-panel rounded-2xl p-5 space-y-4">
       <div className="flex items-center gap-2 border-b border-white/5 pb-2.5">
         <Calendar className="h-4 w-4 text-[#5EEAD4]" />
-        <h3 className="font-display text-sm font-semibold text-[#EAF0FF]">
+        <h3 className="font-display text-base font-semibold text-[#EAF0FF]">
           Your Working Hours Scheduler
         </h3>
       </div>
 
-      <p className="text-xs text-[#6B779C]">
+      <p className="text-sm text-[#6B779C]">
         Faria supports <strong>fragmented working hours</strong>. Distinguish split shifts, afternoon breaks, or timezone offsets by saving multiple non-overlapping segments.
       </p>
 
       {/* Render active segments */}
       <div className="space-y-2">
         {segments.length === 0 ? (
-          <div className="text-xs text-[#AEB9D6] italic py-2">
+          <div className="text-sm text-[#AEB9D6] italic py-2">
             No working segments configured. Teammates will see you as Busy/Unavailable by default.
           </div>
         ) : (
@@ -74,10 +74,10 @@ export default function HoursSelector({ segments, onSaveSegments }: HoursSelecto
             >
               <div className="flex items-center gap-2.5">
                 <Sparkles className="h-3.5 w-3.5 text-[#34D399]" />
-                <span className="text-xs font-mono font-semibold text-[#EAF0FF]">
+                <span className="text-sm font-mono font-semibold text-[#EAF0FF]">
                   {formatHourDecimal(start)} &mdash; {formatHourDecimal(end)}
                 </span>
-                <span className="text-[10px] text-slate-500 font-medium bg-slate-800 border border-white/5 px-2 py-0.5 rounded-md">
+                <span className="text-xs text-slate-500 font-medium bg-slate-800 border border-white/5 px-2 py-0.5 rounded-md">
                   Segment {idx + 1}
                 </span>
               </div>
@@ -98,13 +98,13 @@ export default function HoursSelector({ segments, onSaveSegments }: HoursSelecto
       <form onSubmit={handleAddSegment} className="pt-3 border-t border-white/5 space-y-3">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-[10.5px] font-bold uppercase text-[#6B779C] mb-1">
+            <label className="block text-xs font-bold uppercase text-[#6B779C] mb-1">
               Start Hour
             </label>
             <select
               value={startInput}
               onChange={(e) => setStartInput(parseFloat(e.target.value))}
-              className="w-full bg-[#070A14] border border-white/10 text-[#EAF0FF] rounded-xl px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#6D8BFF]"
+              className="w-full bg-[#070A14] border border-white/10 text-[#EAF0FF] rounded-xl px-2.5 py-1.5 text-sm focus:outline-none focus:border-[#6D8BFF]"
             >
               {hoursOptions.map((h) => (
                 <option key={`start-${h}`} value={h}>
@@ -115,13 +115,13 @@ export default function HoursSelector({ segments, onSaveSegments }: HoursSelecto
           </div>
 
           <div>
-            <label className="block text-[10.5px] font-bold uppercase text-[#6B779C] mb-1">
+            <label className="block text-xs font-bold uppercase text-[#6B779C] mb-1">
               End Hour
             </label>
             <select
               value={endInput}
               onChange={(e) => setEndInput(parseFloat(e.target.value))}
-              className="w-full bg-[#070A14] border border-white/10 text-[#EAF0FF] rounded-xl px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#6D8BFF]"
+              className="w-full bg-[#070A14] border border-white/10 text-[#EAF0FF] rounded-xl px-2.5 py-1.5 text-sm focus:outline-none focus:border-[#6D8BFF]"
             >
               {hoursOptions.map((h) => (
                 <option key={`end-${h}`} value={h}>
@@ -134,7 +134,7 @@ export default function HoursSelector({ segments, onSaveSegments }: HoursSelecto
 
         <button
           type="submit"
-          className="w-full flex items-center justify-center gap-1.5 py-2 px-4 bg-slate-850 hover:bg-slate-750 text-[#EAF0FF] text-xs font-semibold rounded-xl border border-white/10 transition-all cursor-pointer"
+          className="w-full flex items-center justify-center gap-1.5 py-2 px-4 bg-slate-850 hover:bg-slate-750 text-[#EAF0FF] text-sm font-semibold rounded-xl border border-white/10 transition-all cursor-pointer"
         >
           <Plus className="h-4 w-4" /> Add Segment
         </button>

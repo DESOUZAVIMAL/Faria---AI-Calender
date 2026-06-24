@@ -66,7 +66,7 @@ export default function DayGanttPanel({
           <h3 className="font-display text-base font-bold text-[#EAF0FF]">
             {DateTime.fromISO(dayData.date).toFormat("EEEE, LLL dd, yyyy")}
             {isToday && (
-              <span className="ml-2.5 px-2.5 py-0.5 bg-[#6D8BFF]/20 text-[#6D8BFF] text-[10px] font-bold rounded-lg border border-[#6D8BFF]/25 uppercase tracking-widest animate-pulse">
+              <span className="ml-2.5 px-2.5 py-0.5 bg-[#6D8BFF]/20 text-[#6D8BFF] text-xs font-bold rounded-lg border border-[#6D8BFF]/25 uppercase tracking-widest animate-pulse">
                 Today
               </span>
             )}
@@ -74,7 +74,7 @@ export default function DayGanttPanel({
 
           {/* Noise indicator */}
           {dayData.hiddenCount > 0 && (
-            <span className="px-2.5 py-0.5 bg-indigo-500/10 text-[#5EEAD4] text-[10.5px] font-semibold border border-indigo-500/15 rounded-xl">
+            <span className="px-2.5 py-0.5 bg-indigo-500/10 text-[#5EEAD4] text-xs font-semibold border border-indigo-500/15 rounded-xl">
               ⚙️ {dayData.hiddenCount} noise events filtered
             </span>
           )}
@@ -92,14 +92,14 @@ export default function DayGanttPanel({
         <div className="min-w-[650px] relative">
           {/* Time scale rulers */}
           <div className="grid grid-cols-[185px_1fr] border-b border-white/5 pb-2 mb-2 select-none">
-            <div className="text-[10px] uppercase tracking-wider font-bold text-[#6B779C] self-end">
+            <div className="text-xs uppercase tracking-wider font-bold text-[#6B779C] self-end">
               Teammate Clock
             </div>
             <div className="relative h-6">
               {hoursRange.map((hr) => (
                 <div
                   key={hr}
-                  className="absolute text-[10px] font-mono text-[#6B779C] -translate-x-1/2"
+                  className="absolute text-xs font-mono text-[#6B779C] -translate-x-1/2"
                   style={{ left: `${getPercentOfHour(hr)}%` }}
                 >
                   {String(hr).padStart(2, "0")}
@@ -143,14 +143,14 @@ export default function DayGanttPanel({
                 <div key={row.id} className="grid grid-cols-[185px_1fr] items-center group relative min-h-11 hover:bg-slate-800/20 rounded-xl p-1 transition-colors duration-150">
                   {/* Left Column Teammate Profiler with Avatar */}
                   <div className="flex items-center gap-2 pr-3 min-w-0">
-                    <div className="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-400/20 text-[#6D8BFF] text-[10px] font-bold flex items-center justify-center shrink-0">
+                    <div className="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-400/20 text-[#6D8BFF] text-xs font-bold flex items-center justify-center shrink-0">
                       {initials}
                     </div>
                     <div className="flex flex-col min-w-0 justify-center">
                       <span className="text-xs font-semibold text-[#EAF0FF] truncate">
                         {row.name}
                       </span>
-                      <span className="text-[9px] text-[#6B779C] font-mono truncate leading-none mt-1">
+                      <span className="text-[10.5px] text-[#6B779C] font-mono truncate leading-none mt-1">
                         {row.timezone.split("/")[1]?.replace("_", " ") || row.timezone} &bull; {clock}
                       </span>
                     </div>
@@ -196,7 +196,7 @@ export default function DayGanttPanel({
                       return (
                         <div
                           key={bIdx}
-                          className={`absolute top-1.5 bottom-1.5 rounded-lg px-2 flex items-center justify-start text-[9.5px] font-medium overflow-hidden truncate whitespace-nowrap z-10 transition-all hover:scale-[1.01] hover:brightness-110 cursor-help ${styleClass}`}
+                          className={`absolute top-1.5 bottom-1.5 rounded-lg px-2 flex items-center justify-start text-[11px] font-medium overflow-hidden truncate whitespace-nowrap z-10 transition-all hover:scale-[1.01] hover:brightness-110 cursor-help ${styleClass}`}
                           style={{
                             left: `${leftPct}%`,
                             width: `${widthPct}%`,
@@ -215,7 +215,7 @@ export default function DayGanttPanel({
 
           {/* Overlap Summary: "Everyone free" strip */}
           <div className="border-t border-white/5 pt-4">
-            <span className="text-[10.5px] uppercase tracking-wider font-bold text-[#6B779C] block mb-2 px-1">
+            <span className="text-xs uppercase tracking-wider font-bold text-[#6B779C] block mb-2 px-1">
               Overlapping Consensus Space ("Everyone Free")
             </span>
 
@@ -245,7 +245,7 @@ export default function DayGanttPanel({
                   {dayData.freeSlots.map((slot, idx) => (
                     <div
                       key={idx}
-                      className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-400/20 px-3 py-1.5 rounded-xl text-[#34D399] text-xs font-semibold shadow-sm transition-all hover:bg-emerald-500/15"
+                      className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-400/20 px-3 py-1.5 rounded-xl text-[#34D399] text-sm font-semibold shadow-sm transition-all hover:bg-emerald-500/15"
                     >
                       <CheckCircle className="h-3.5 w-3.5 text-[#34D399] animate-bounce" />
                       <span>
@@ -258,10 +258,10 @@ export default function DayGanttPanel({
             ) : (
               <div className="flex flex-col items-center justify-center py-4 bg-red-400/5 border border-red-400/10 rounded-xl text-center px-4">
                 <HelpCircle className="h-5 w-5 text-rose-450 mb-1" />
-                <p className="text-xs text-rose-300 font-medium">
+                <p className="text-sm text-rose-300 font-medium">
                   No overlapping slots fit all {selectedIds.length} chosen colleagues simultaneously.
                 </p>
-                <p className="text-[10px] text-slate-500 mt-0.5">
+                <p className="text-xs text-slate-500 mt-0.5">
                   Try tweaking filter preferences, removing outliers, or looking at another day.
                 </p>
               </div>
@@ -270,18 +270,18 @@ export default function DayGanttPanel({
 
           {/* 3. Best Slot Summary recommendation engine */}
           {dayData.bestSlots.length > 0 && (
-            <div className="mt-4.5 bg-[#6D8BFF]/5 border border-[#6D8BFF]/20 rounded-xl p-3 flex items-center justify-between text-xs text-[#EAF0FF]">
+            <div className="mt-4.5 bg-[#6D8BFF]/5 border border-[#6D8BFF]/20 rounded-xl p-3 flex items-center justify-between text-sm text-[#EAF0FF]">
               <div className="flex items-center gap-2">
                 <Star className="h-4 w-4 text-[#A78BFA] fill-[#A78BFA] animate-spin-slow" />
                 <span>
                   <strong>Algorithm Recommendation:</strong> Best window on this day for all chosen colleagues is{" "}
-                  <strong className="text-[#5EEAD4] font-mono font-bold bg-[#5EEAD4]/10 border border-[#5EEAD4]/20 px-1.5 py-0.5 rounded-md">
+                  <strong className="text-[#5EEAD4] font-mono font-bold bg-[#5EEAD4]/10 border border-[#5EEAD4]/20 px-1.5 py-0.5 rounded-md text-sm">
                     {formatTimeStr(dayData.bestSlots[0].start)} &mdash; {formatTimeStr(dayData.bestSlots[0].end)}
                   </strong>{" "}
                   on your viewer clock.
                 </span>
               </div>
-              <span className="text-[10px] text-slate-400 bg-slate-900/60 border border-white/5 rounded-md px-2 py-0.5 font-mono font-medium">
+              <span className="text-xs text-slate-400 bg-slate-900/60 border border-white/5 rounded-md px-2 py-0.5 font-mono font-medium">
                 Overlap Score: {dayData.bestSlots[0].score.toFixed(1)}
               </span>
             </div>

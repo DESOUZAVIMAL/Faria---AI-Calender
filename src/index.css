@@ -43,11 +43,11 @@
 
 /* Custom aurora glow background style */
 .aurora-bg {
-  background-color: #070a14;
+  background-color: #240127; /* Deep faria plum background */
   background-image: 
-    radial-gradient(at 10% 10%, rgba(109, 139, 255, 0.16) 0px, transparent 40%),
-    radial-gradient(at 90% 15%, rgba(167, 139, 250, 0.14) 0px, transparent 40%),
-    radial-gradient(at 50% 85%, rgba(94, 234, 212, 0.12) 0px, transparent 40%);
+    radial-gradient(at 10% 10%, rgba(232, 55, 172, 0.16) 0px, transparent 50%), /* Faria Pink */
+    radial-gradient(at 90% 15%, rgba(247, 211, 95, 0.1) 0px, transparent 45%),   /* Faria Yellow */
+    radial-gradient(at 50% 85%, rgba(247, 136, 67, 0.12) 0px, transparent 50%);  /* Faria Orange */
   background-attachment: fixed;
   animation: aurora-drift 24s infinite alternate ease-in-out;
 }
@@ -63,16 +63,16 @@
 
 /* Glassmorphism panel styling */
 .glass-panel {
-  background: rgba(20, 27, 48, 0.55);
+  background: rgba(57, 22, 56, 0.45); /* Deep Faria darkPlum base */
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .glass-panel:hover {
-  border-color: rgba(109, 139, 255, 0.22);
-  box-shadow: 0 12px 40px 0 rgba(109, 139, 255, 0.07);
+  border-color: rgba(232, 55, 172, 0.22); /* Faria Pink glow boundary */
+  box-shadow: 0 12px 40px 0 rgba(232, 55, 172, 0.06);
 }
 
 /* Perfect consensus cells glow pulse */
@@ -82,11 +82,11 @@
 
 @keyframes pulse-glow-keyframes {
   0% {
-    box-shadow: 0 0 6px rgba(52, 211, 153, 0.3);
+    box-shadow: 0 0 6px rgba(247, 211, 95, 0.3); /* Faria Yellow glow */
     filter: brightness(1);
   }
   100% {
-    box-shadow: 0 0 16px rgba(52, 211, 153, 0.6);
+    box-shadow: 0 0 16px rgba(247, 211, 95, 0.6);
     filter: brightness(1.15);
   }
 }
@@ -98,10 +98,10 @@
 
 @keyframes pulse-shadow {
   0% {
-    box-shadow: 0 0 4px rgba(94, 234, 212, 0.2), inset 0 0 4px rgba(94, 234, 212, 0.1);
+    box-shadow: 0 0 4px rgba(232, 55, 172, 0.2), inset 0 0 4px rgba(232, 55, 172, 0.1);
   }
   100% {
-    box-shadow: 0 0 12px rgba(94, 234, 212, 0.4), inset 0 0 8px rgba(94, 234, 212, 0.2);
+    box-shadow: 0 0 12px rgba(232, 55, 172, 0.4), inset 0 0 8px rgba(232, 55, 172, 0.2);
   }
 }
 
