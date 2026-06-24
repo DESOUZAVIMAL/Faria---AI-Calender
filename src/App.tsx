@@ -15,6 +15,7 @@ import AICopilotPanel from "./components/AICopilotPanel";
 import WeeklyHorizon from "./components/WeeklyHorizon";
 import DailyFocus from "./components/DailyFocus";
 import LandingPage from "./components/LandingPage";
+import AICopilotTab from "./components/AICopilotTab";
 
 import { 
   Calendar, 
@@ -40,16 +41,6 @@ import {
 } from "lucide-react";
 import { DateTime } from "luxon";
 import { motion, AnimatePresence } from "motion/react";
-
-// --- Tab placeholder components with dark-mode glassmorphism ---
-
-const AICopilotTab = () => (
-  <div className="p-8 h-full flex flex-col items-center justify-center border border-white/10 rounded-2xl m-8 bg-[#141b30]/40 backdrop-blur-md">
-    <Sparkles size={48} className="text-purple-400 opacity-50 mb-4 animate-pulse" />
-    <h3 className="text-xl font-display font-semibold text-[#EAF0FF]">Gemini AI Copilot</h3>
-    <p className="text-sm text-[#AEB9D6] mt-2 text-center">Natural language chat and dynamic generative UI widgets will render here.</p>
-  </div>
-);
 
 // Performance friendly inline count up component for Stats
 function CountUp({ value }: { value: number }) {

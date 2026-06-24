@@ -7,15 +7,10 @@ import {
   Bot, 
   User as UserIcon, 
   Calendar, 
-  ArrowRight,
   Check,
   AlertCircle,
-  HelpCircle,
-  Clock,
   Mic,
-  MicOff,
   Volume2,
-  Sliders,
   TrendingUp,
   Gauge
 } from "lucide-react";
@@ -61,10 +56,9 @@ export default function AICopilotPanel({ isOpen, onClose, selectedTeammates }: A
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [voiceText, setVoiceText] = useState("");
-  const [overlapThreshold, setOverlapThreshold] = useState(4); // Editable slider inside Generative UI
+  const [overlapThreshold, setOverlapThreshold] = useState(4);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto scroll
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -77,7 +71,43 @@ export default function AICopilotPanel({ isOpen, onClose, selectedTeammates }: A
     "Render timezone outlier chart",
   ];
 
-  // Siri Voice activation simulator
+  // Neural Network Nodes
+  const nodes = [
+    { id: 'calendar', label: 'GLOBAL CALENDAR', x: 20, y: 35 },
+    { id: 'ops', label: 'OPERATIONS', x: 55, y: 20 },
+    { id: 'memory', label: 'TEAM MEMORY', x: 85, y: 35 },
+    { id: 'velocity', label: 'VELOCITY', x: 25, y: 70 },
+    { id: 'crm', label: 'CLIENT CRM', x: 88, y: 75 },
+  ];
+
+  // --- DENSE NEURAL WAVES ---
+  // We use a large array of paths with varying bezier curves to create a dense, sweeping horizontal web.
+  // Using Faria Plum (#37023c), Dark Plum (#391638), Pink (#E837AC), and Yellow (#F7D35F) for depth.
+  const denseWaves = [
+    // Deep background layer (Thicker, darker lines for depth)
+    { path: "M-10,40 C30,10 70,80 110,40", color: "#552859", opacity: 0.6, width: "0.8", duration: 7, delay: 0 },
+    { path: "M-10,60 C20,90 80,10 110,60", color: "#391638", opacity: 0.8, width: "1.2", duration: 8, delay: 1 },
+    { path: "M-10,50 C40,20 60,80 110,50", color: "#552859", opacity: 0.7, width: "0.9", duration: 6, delay: 0.5 },
+    
+    // Mid layer (Faria Pink for vibrant structure)
+    { path: "M-10,30 C30,70 70,30 110,70", color: "#E837AC", opacity: 0.4, width: "0.4", duration: 5, delay: 0.2 },
+    { path: "M-10,70 C40,30 60,70 110,30", color: "#E837AC", opacity: 0.3, width: "0.5", duration: 5.5, delay: 1.2 },
+    { path: "M-10,45 C25,25 75,75 110,45", color: "#F6AFDE", opacity: 0.3, width: "0.3", duration: 4.5, delay: 0.8 },
+    { path: "M-10,55 C35,85 65,15 110,55", color: "#E837AC", opacity: 0.5, width: "0.4", duration: 6.5, delay: 1.5 },
+
+    // Core energetic layer (Bright, thin lines crossing the center)
+    { path: "M-10,50 C20,40 80,60 110,50", color: "#F78843", opacity: 0.6, width: "0.2", duration: 4, delay: 0.3 },
+    { path: "M-10,50 C40,60 60,40 110,50", color: "#F7D35F", opacity: 0.5, width: "0.2", duration: 3.5, delay: 0.7 },
+    { path: "M-10,50 C10,10 90,90 110,50", color: "#E837AC", opacity: 0.6, width: "0.25", duration: 4.2, delay: 0.1 },
+    { path: "M-10,50 C30,90 70,10 110,50", color: "#F78843", opacity: 0.4, width: "0.3", duration: 4.8, delay: 0.9 },
+
+    // Additional crossing web lines to increase density
+    { path: "M-10,20 C40,80 60,20 110,80", color: "#552859", opacity: 0.5, width: "0.6", duration: 7.5, delay: 0.4 },
+    { path: "M-10,80 C30,20 70,80 110,20", color: "#391638", opacity: 0.7, width: "0.7", duration: 8.5, delay: 1.1 },
+    { path: "M-10,35 C50,65 50,35 110,65", color: "#E837AC", opacity: 0.2, width: "0.3", duration: 5.2, delay: 0.6 },
+    { path: "M-10,65 C50,35 50,65 110,35", color: "#F6AFDE", opacity: 0.2, width: "0.2", duration: 5.8, delay: 1.3 },
+  ];
+
   const handleTriggerVoice = () => {
     if (isListening) {
       setIsListening(false);
@@ -87,14 +117,10 @@ export default function AICopilotPanel({ isOpen, onClose, selectedTeammates }: A
     setIsListening(true);
     setVoiceText("Listening...");
 
-    // Stage 1: Simulating voice stream
     setTimeout(() => {
       setVoiceText("Listening: \"Find optimal gaps with Cole and Liam tomorrow...\"");
-      
-      // Stage 2: Capture voice successfully
       setTimeout(() => {
         setVoiceText("Captured: \"Render timezone outlier chart for the team\"");
-        
         setTimeout(() => {
           setIsListening(false);
           handleSend("Render timezone outlier chart for the team");
@@ -106,69 +132,35 @@ export default function AICopilotPanel({ isOpen, onClose, selectedTeammates }: A
   const handleSend = (text: string) => {
     if (!text.trim()) return;
     
-    const userMsg: Message = {
-      id: `u-${Date.now()}`,
-      sender: "user",
-      text: text,
-      type: "text"
-    };
-
+    const userMsg: Message = { id: `u-${Date.now()}`, sender: "user", text: text, type: "text" };
     setMessages(prev => [...prev, userMsg]);
     setInputValue("");
     setIsTyping(true);
 
-    const thinkingMsg: Message = {
-      id: `thinking-${Date.now()}`,
-      sender: "ai",
-      text: "Scanning 7-day teammate rosters & evaluating cross-clock overlap coefficients...",
-      type: "thinking"
-    };
-    
+    const thinkingMsg: Message = { id: `thinking-${Date.now()}`, sender: "ai", text: "Scanning 7-day teammate rosters...", type: "thinking" };
     setMessages(prev => [...prev, thinkingMsg]);
 
     const localTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     fetch("/api/copilot", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        userMessage: text,
-        selectedTeammates: selectedTeammates,
-        currentUserTimezone: localTz
-      })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userMessage: text, selectedTeammates, currentUserTimezone: localTz })
     })
       .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to receive copilot answer.");
-        }
+        if (!res.ok) throw new Error("Failed to receive copilot answer.");
         return res.json();
       })
       .then((data) => {
         setMessages(prev => prev.filter(m => m.id !== thinkingMsg.id));
-        
-        const aiMsg: Message = {
-          id: `ai-${Date.now()}`,
-          sender: "ai",
-          text: data.reply || "I parsed your query against active calendars. Faria is fully configured with persistent storage and domain filtration to keep event data private.",
-          type: "text"
-        };
-
+        const aiMsg: Message = { id: `ai-${Date.now()}`, sender: "ai", text: data.reply || "Done.", type: "text" };
         setMessages(prev => [...prev, aiMsg]);
         setIsTyping(false);
       })
       .catch((err) => {
         console.error("Copilot request error:", err);
         setMessages(prev => prev.filter(m => m.id !== thinkingMsg.id));
-        
-        const aiMsg: Message = {
-          id: `ai-err-${Date.now()}`,
-          sender: "ai",
-          text: `Failed to connect with Faria AI services: ${err.message || "Unknown error"}. Check key configuration.`,
-          type: "text"
-        };
-
+        const aiMsg: Message = { id: `ai-err-${Date.now()}`, sender: "ai", text: `Error: ${err.message}`, type: "text" };
         setMessages(prev => [...prev, aiMsg]);
         setIsTyping(false);
       });
@@ -177,13 +169,7 @@ export default function AICopilotPanel({ isOpen, onClose, selectedTeammates }: A
   const handleResolveTool = (msgId: string, finalStatus: "approved" | "rejected") => {
     setMessages(prev => prev.map(m => {
       if (m.id === msgId && m.toolInfo) {
-        return {
-          ...m,
-          toolInfo: {
-            ...m.toolInfo,
-            status: finalStatus
-          }
-        };
+        return { ...m, toolInfo: { ...m.toolInfo, status: finalStatus } };
       }
       return m;
     }));
@@ -192,33 +178,117 @@ export default function AICopilotPanel({ isOpen, onClose, selectedTeammates }: A
   if (!isOpen) return null;
 
   return (
-    <div className="fixed top-0 right-0 h-full w-full max-w-sm sm:max-w-md bg-[#070a14]/95 border-l border-white/8 backdrop-blur-xl shadow-2xl z-50 flex flex-col justify-between">
+    <div className="fixed top-0 right-0 h-full w-full max-w-sm sm:max-w-md bg-faria-plum border-l border-faria-pink/20 shadow-[0_0_50px_rgba(55,2,60,0.8)] z-50 flex flex-col justify-between overflow-hidden">
+      
+      {/* --- BACKGROUND NEURAL MESH (Dense horizontal waves) --- */}
+      <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center overflow-hidden bg-faria-darkPlum">
+        
+        {/* Deep ambient background glows */}
+        <div className="absolute top-[20%] left-[10%] w-64 h-64 bg-faria-pink/10 rounded-full blur-[80px]" />
+        <div className="absolute bottom-[20%] right-[10%] w-64 h-64 bg-faria-orange/10 rounded-full blur-[80px]" />
+
+        {/* Central Core Glow */}
+        <motion.div 
+          className="absolute w-72 h-72 rounded-full flex items-center justify-center"
+          animate={{ scale: isTyping || isListening ? 1.05 : 1 }}
+          transition={{ duration: 2, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
+        >
+          <div className={`absolute w-40 h-40 rounded-full blur-[50px] transition-all duration-700 ${isTyping || isListening ? 'bg-faria-pink/40' : 'bg-faria-plum/80'}`} />
+        </motion.div>
+
+        {/* Dense Wave SVG Canvas */}
+        <svg 
+          className="absolute inset-0 w-full h-full" 
+          viewBox="0 0 100 100" 
+          preserveAspectRatio="none"
+        >
+          <defs>
+            <filter id="wave-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="0" stdDeviation="1.5" floodColor="#E837AC" floodOpacity="0.8" />
+            </filter>
+          </defs>
+
+          {denseWaves.map((wave, i) => (
+            <motion.path
+              key={`wave-${i}`}
+              d={wave.path}
+              fill="transparent"
+              stroke={wave.color}
+              strokeWidth={wave.width}
+              vectorEffect="non-scaling-stroke"
+              filter={wave.color === "#E837AC" || wave.color === "#F78843" ? "url(#wave-glow)" : ""}
+              initial={{ opacity: 0 }}
+              animate={{ 
+                opacity: isTyping || isListening ? wave.opacity + 0.2 : wave.opacity,
+                scaleY: isTyping || isListening ? [1, 1.15, 0.9, 1] : [1, 1.05, 0.95, 1],
+                y: isTyping || isListening ? [0, -3, 3, 0] : [0, -1, 1, 0]
+              }}
+              transition={{ 
+                opacity: { duration: 1 },
+                scaleY: { duration: wave.duration, repeat: Infinity, ease: "easeInOut", delay: wave.delay },
+                y: { duration: wave.duration * 1.2, repeat: Infinity, ease: "easeInOut", delay: wave.delay }
+              }}
+            />
+          ))}
+          
+          {/* Traveling Data Particles */}
+          {[...Array(15)].map((_, i) => (
+            <motion.circle
+              key={`particle-${i}`}
+              r="0.25"
+              fill={i % 3 === 0 ? "#F7D35F" : "#E837AC"} // Faria Yellow or Pink
+              className="opacity-80"
+              style={{ filter: `drop-shadow(0px 0px 3px ${i % 3 === 0 ? '#F7D35F' : '#E837AC'})` }}
+              animate={{
+                cx: ['-5%', '105%'],
+                cy: ['45%', '55%', '40%', '60%']
+              }}
+              transition={{
+                cx: { duration: 8 + i * 1.5, repeat: Infinity, ease: "linear", delay: i * 0.5 },
+                cy: { duration: 4 + i, repeat: Infinity, ease: "easeInOut", repeatType: "mirror" }
+              }}
+            />
+          ))}
+        </svg>
+
+        {/* Floating Nodes */}
+        {nodes.map((node, i) => (
+          <motion.div
+            key={node.id}
+            className="absolute flex items-center gap-2"
+            style={{ left: `${node.x}%`, top: `${node.y}%`, transform: 'translate(-50%, -50%)' }}
+            animate={{ y: [0, -5, 0] }}
+            transition={{ duration: 4, repeat: Infinity, delay: i * 0.4, ease: "easeInOut" }}
+          >
+            <div className={`w-2 h-2 rounded-full bg-faria-pink shadow-[0_0_10px_rgba(232,55,172,0.8)] ${isTyping || isListening ? 'animate-pulse' : ''}`} />
+            <span className="text-[9px] font-bold text-faria-paper/90 tracking-widest uppercase border border-faria-pink/20 bg-faria-darkPlum/80 px-2 py-0.5 rounded shadow-lg backdrop-blur-md">
+              {node.label}
+            </span>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* --- FOREGROUND CHAT UI --- */}
       {/* Header */}
-      <div className="p-4.5 border-b border-white/5 flex items-center justify-between bg-[#141b30]/65">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center pulse-glow">
-            <Sparkles className="h-4.5 w-4.5 text-[#5EEAD4]" />
+      <div className="relative z-10 p-4.5 border-b border-faria-pink/10 flex items-center justify-between bg-faria-darkPlum/90 backdrop-blur-md">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-faria-orange via-faria-pink to-faria-yellow flex items-center justify-center shadow-[0_0_15px_rgba(232,55,172,0.4)]">
+            <Sparkles className="h-4.5 w-4.5 text-white" />
           </div>
           <div>
-            <h3 className="font-display text-xs font-bold text-[#EAF0FF] uppercase tracking-wider">
+            <h3 className="font-display text-xs font-bold text-white uppercase tracking-wider">
               AI Copilot Assistant
             </h3>
-            <span className="text-[10px] text-teal-300 font-mono">Faria Engine v1.0 &bull; Generative UI inside</span>
+            <span className="text-[10px] text-faria-paper/70 font-mono">Faria Engine v1.0</span>
           </div>
         </div>
-        <button
-          onClick={onClose}
-          className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-all cursor-pointer"
-        >
+        <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10 text-faria-paper/60 hover:text-white transition-all">
           <X className="h-4.5 w-4.5" />
         </button>
       </div>
 
       {/* Messages Scroll View */}
-      <div 
-        ref={scrollRef} 
-        className="flex-1 overflow-y-auto p-4.5 space-y-4.5 no-scrollbar bg-slate-950/20"
-      >
+      <div ref={scrollRef} className="relative z-10 flex-1 overflow-y-auto p-4.5 space-y-4.5 no-scrollbar">
         <AnimatePresence initial={false}>
           {messages.map((m) => {
             const isAI = m.sender === "ai";
@@ -233,142 +303,82 @@ export default function AICopilotPanel({ isOpen, onClose, selectedTeammates }: A
               >
                 {/* AI Avatar */}
                 {isAI && (
-                  <div className="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0">
-                    <Bot className="h-4 w-4 text-[#A78BFA]" />
+                  <div className="w-7 h-7 rounded-lg bg-faria-pink/20 border border-faria-pink/30 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(232,55,172,0.2)]">
+                    <Bot className="h-4 w-4 text-faria-pink" />
                   </div>
                 )}
 
                 <div className="max-w-[85%] space-y-2">
-                  {/* Chat Bubbles */}
                   {m.type === "thinking" ? (
-                    <div className="p-3 rounded-2xl bg-slate-900/40 border border-white/5 text-xs text-[#AEB9D6] italic flex items-center gap-2.5">
+                    <div className="p-3 rounded-2xl bg-faria-darkPlum/80 border border-faria-pink/20 text-xs text-faria-paper/80 italic flex items-center gap-2.5 backdrop-blur-sm">
                       <div className="flex gap-1">
-                        <span className="w-1.5 h-1.5 bg-[#6D8BFF] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                        <span className="w-1.5 h-1.5 bg-[#A78BFA] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                        <span className="w-1.5 h-1.5 bg-[#5EEAD4] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                        <span className="w-1.5 h-1.5 bg-faria-orange rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                        <span className="w-1.5 h-1.5 bg-faria-pink rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                        <span className="w-1.5 h-1.5 bg-faria-yellow rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                       </div>
                       <span>{m.text}</span>
                     </div>
                   ) : m.type === "generative_widget" && m.widgetData ? (
-                    /* --- GENERATIVE UI COMPONENT WIDGET --- */
-                    <motion.div 
-                      initial={{ scale: 0.95, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      className="rounded-2xl border border-teal-500/30 bg-teal-500/5 p-4 space-y-4 shadow-xl text-xs"
-                    >
-                      <div className="flex justify-between items-center border-b border-teal-500/10 pb-2">
+                    <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="rounded-2xl border border-faria-pink/30 bg-faria-darkPlum/90 p-4 space-y-4 shadow-xl text-xs backdrop-blur-md">
+                      <div className="flex justify-between items-center border-b border-white/10 pb-2">
                         <div className="flex items-center gap-1.5">
-                          <Gauge className="h-4 w-4 text-[#5EEAD4] animate-pulse" />
-                          <span className="text-[10px] uppercase font-bold text-[#EAF0FF]">Generative UI Overlap Engine</span>
+                          <Gauge className="h-4 w-4 text-faria-yellow animate-pulse" />
+                          <span className="text-[10px] uppercase font-bold text-white">Generative Overlap Engine</span>
                         </div>
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-teal-400/20 text-[#5EEAD4] uppercase font-mono tracking-wider font-semibold">
-                          Figma Sync Token Render
-                        </span>
                       </div>
-
-                      {/* Interactive Slider inside Chat Bubble */}
                       <div className="space-y-1 bg-black/40 p-2.5 rounded-xl border border-white/5">
                         <div className="flex justify-between text-[11px]">
-                          <span className="text-slate-400">Prune Distance Threshold:</span>
-                          <span className="text-[#5EEAD4] font-mono font-bold">&gt; {overlapThreshold} hrs diff</span>
+                          <span className="text-faria-paper/70">Prune Distance Threshold:</span>
+                          <span className="text-faria-yellow font-mono font-bold">&gt; {overlapThreshold} hrs</span>
                         </div>
-                        <input 
-                          type="range" 
-                          min="1" 
-                          max="15" 
-                          value={overlapThreshold}
-                          onChange={(e) => setOverlapThreshold(Number(e.target.value))}
-                          className="w-full accent-[#5EEAD4]"
-                        />
+                        <input type="range" min="1" max="15" value={overlapThreshold} onChange={(e) => setOverlapThreshold(Number(e.target.value))} className="w-full accent-faria-yellow" />
                       </div>
-
-                      {/* Outlier Bars List */}
                       <div className="space-y-2">
                         {m.widgetData.outliers.map((o, idx) => {
                           const isHighOutlier = Math.abs(o.diff) > overlapThreshold;
                           return (
-                            <div 
-                              key={idx} 
-                              className={`p-2 rounded-lg border transition-all ${
-                                isHighOutlier 
-                                  ? "bg-rose-500/10 border-rose-500/20 text-rose-200" 
-                                  : "bg-[#141b30]/60 border-white/5 text-[#AEB9D6]"
-                              }`}
-                            >
+                            <div key={idx} className={`p-2 rounded-lg border transition-all ${isHighOutlier ? "bg-faria-orange/20 border-faria-orange/30 text-faria-paper" : "bg-white/5 border-white/5 text-faria-paper/80"}`}>
                               <div className="flex justify-between items-center mb-1">
                                 <span className="font-semibold text-[11px]">{o.name} <span className="text-[10px] opacity-60">({o.tz})</span></span>
-                                <span className="font-mono text-[10px] font-bold">
-                                  {o.diff > 0 ? `+${o.diff}` : o.diff} hr shift
-                                </span>
+                                <span className="font-mono text-[10px] font-bold">{o.diff > 0 ? `+${o.diff}` : o.diff} hr</span>
                               </div>
                               <div className="w-full bg-black/40 h-1.5 rounded-full overflow-hidden">
-                                <div 
-                                  className={`h-full rounded-full transition-all duration-300 ${isHighOutlier ? "bg-rose-400" : "bg-gradient-to-r from-teal-400 to-indigo-400"}`} 
-                                  style={{ width: `${Math.min(100, Math.max(10, o.coefficient))}%` }}
-                                />
+                                <div className={`h-full rounded-full transition-all duration-300 ${isHighOutlier ? "bg-faria-orange" : "bg-gradient-to-r from-faria-pink to-faria-yellow"}`} style={{ width: `${Math.min(100, Math.max(10, o.coefficient))}%` }} />
                               </div>
                             </div>
                           );
                         })}
                       </div>
-
-                      <div className="bg-teal-500/10 border border-teal-500/15 py-1.5 rounded-lg px-2 text-center text-[#5EEAD4] text-[10px] font-mono font-bold flex items-center justify-center gap-1.5">
-                        <TrendingUp className="h-3.5 w-3.5 text-teal-300" /> Recommended: {m.widgetData.recommendedGap}
+                      <div className="bg-faria-yellow/10 border border-faria-yellow/20 py-1.5 rounded-lg px-2 text-center text-faria-yellow text-[10px] font-mono font-bold flex items-center justify-center gap-1.5">
+                        <TrendingUp className="h-3.5 w-3.5" /> Recommended: {m.widgetData.recommendedGap}
                       </div>
                     </motion.div>
                   ) : m.type === "tool_call" && m.toolInfo ? (
-                    /* Tool Call Card */
-                    <div className="rounded-2xl border border-[#6D8BFF]/30 bg-indigo-500/5 p-4 space-y-3 shadow-lg">
-                      <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                    <div className="rounded-2xl border border-faria-pink/30 bg-faria-darkPlum/90 p-4 space-y-3 shadow-lg backdrop-blur-md">
+                      <div className="flex justify-between items-center border-b border-white/10 pb-2">
                         <div className="flex items-center gap-1.5">
-                          <Calendar className="h-4 w-4 text-[#6D8BFF]" />
-                          <span className="text-[10px] uppercase font-bold text-[#EAF0FF]">Google Workspace Sync</span>
+                          <Calendar className="h-4 w-4 text-faria-pink" />
+                          <span className="text-[10px] uppercase font-bold text-white">Google Workspace Sync</span>
                         </div>
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-200 uppercase font-mono tracking-wider font-semibold">
-                          Tool Authorization
-                        </span>
                       </div>
-
-                      <div className="space-y-1.5 font-mono text-[11px] text-[#AEB9D6]">
-                        <div><strong className="text-[#EAF0FF]">Event:</strong> {m.toolInfo.params.Event}</div>
-                        <div><strong className="text-[#EAF0FF]">Target Date:</strong> {m.toolInfo.params.Date}</div>
-                        <div><strong className="text-[#EAF0FF]">Time:</strong> {m.toolInfo.params.Time}</div>
-                        <div><strong className="text-[#EAF0FF]">Guests:</strong> {m.toolInfo.params.Participants}</div>
+                      <div className="space-y-1.5 font-mono text-[11px] text-faria-paper/80">
+                        <div><strong className="text-white">Event:</strong> {m.toolInfo.params.Event}</div>
+                        <div><strong className="text-white">Date:</strong> {m.toolInfo.params.Date}</div>
+                        <div><strong className="text-white">Time:</strong> {m.toolInfo.params.Time}</div>
                       </div>
-
                       {m.toolInfo.status === "pending" ? (
                         <div className="flex gap-2 pt-1">
-                          <button
-                            onClick={() => handleResolveTool(m.id, "approved")}
-                            className="flex-1 py-1.5 bg-[#34D399] text-black hover:bg-[#34D399]/90 font-bold rounded-lg text-xs transition-colors cursor-pointer"
-                          >
-                            Approve Schedule
-                          </button>
-                          <button
-                            onClick={() => handleResolveTool(m.id, "rejected")}
-                            className="px-3 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 font-semibold rounded-lg text-xs transition-colors cursor-pointer"
-                          >
-                            Dismiss
-                          </button>
+                          <button onClick={() => handleResolveTool(m.id, "approved")} className="flex-1 py-1.5 bg-faria-pink text-white hover:bg-faria-pink/90 font-bold rounded-lg text-xs transition-colors">Approve</button>
+                          <button onClick={() => handleResolveTool(m.id, "rejected")} className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-lg text-xs transition-colors">Dismiss</button>
                         </div>
                       ) : m.toolInfo.status === "approved" ? (
-                        <div className="bg-emerald-400/5 border border-emerald-400/15 py-1.5 rounded-lg px-2 text-emerald-300 text-[10px] font-bold flex items-center justify-center gap-1.5">
-                          <Check className="h-3.5 w-3.5" /> Approved & Synthesized with Calendar!
-                        </div>
+                        <div className="bg-emerald-400/10 border border-emerald-400/20 py-1.5 rounded-lg text-emerald-400 text-[10px] font-bold flex justify-center gap-1.5"><Check className="h-3.5 w-3.5" /> Approved!</div>
                       ) : (
-                        <div className="bg-red-400/5 border border-red-400/15 py-1.5 rounded-lg px-2 text-red-300 text-[10px] font-bold flex items-center justify-center gap-1.5">
-                          <AlertCircle className="h-3.5 w-3.5" /> Authorization Dismissed
-                        </div>
+                        <div className="bg-rose-400/10 border border-rose-400/20 py-1.5 rounded-lg text-rose-400 text-[10px] font-bold flex justify-center gap-1.5"><AlertCircle className="h-3.5 w-3.5" /> Dismissed</div>
                       )}
                     </div>
                   ) : m.text ? (
-                    <div 
-                      className={`p-3 rounded-2xl text-xs leading-relaxed border ${
-                        m.sender === "user"
-                          ? "bg-gradient-to-tr from-indigo-500/80 to-purple-500/80 border-white/5 text-[#EAF0FF]"
-                          : "bg-[#141b30]/55 border-white/8 text-[#AEB9D6]"
-                      }`}
-                    >
+                    <div className={`p-3 rounded-2xl text-xs leading-relaxed border backdrop-blur-md shadow-lg ${m.sender === "user" ? "bg-gradient-to-tr from-faria-orange to-faria-pink border-faria-pink/50 text-white" : "bg-faria-darkPlum/80 border-white/10 text-faria-paper"}`}>
                       {m.text}
                     </div>
                   ) : null}
@@ -376,8 +386,8 @@ export default function AICopilotPanel({ isOpen, onClose, selectedTeammates }: A
 
                 {/* User Avatar */}
                 {m.sender === "user" && (
-                  <div className="w-7 h-7 rounded-lg bg-[#6D8BFF]/10 border border-[#6D8BFF]/20 flex items-center justify-center shrink-0">
-                    <UserIcon className="h-4 w-4 text-[#6D8BFF]" />
+                  <div className="w-7 h-7 rounded-lg bg-faria-orange/20 border border-faria-orange/40 flex items-center justify-center shrink-0">
+                    <UserIcon className="h-4 w-4 text-faria-orange" />
                   </div>
                 )}
               </motion.div>
@@ -386,108 +396,43 @@ export default function AICopilotPanel({ isOpen, onClose, selectedTeammates }: A
         </AnimatePresence>
 
         {isListening && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="p-4 rounded-2xl bg-gradient-to-tr from-purple-500/20 to-teal-400/25 border border-teal-400/30 text-xs text-[#EAF0FF] space-y-3 shadow-lg relative overflow-hidden"
-          >
-            {/* Siri Wave Lines animation */}
-            <div className="flex items-center justify-between border-b border-white/5 pb-2">
-              <span className="font-bold flex items-center gap-1.5 tracking-wider text-[10px] uppercase text-teal-300">
-                <Volume2 className="h-4 w-4 text-emerald-350 animate-bounce" /> Listening with Siri voice ...
+          <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="p-4 rounded-2xl bg-faria-darkPlum/90 border border-faria-pink/30 text-xs text-white space-y-3 shadow-lg backdrop-blur-md">
+            <div className="flex items-center justify-between border-b border-white/10 pb-2">
+              <span className="font-bold flex items-center gap-1.5 tracking-wider text-[10px] uppercase text-faria-yellow">
+                <Volume2 className="h-4 w-4 animate-bounce" /> Listening ...
               </span>
-              <span className="text-[10px] font-mono text-[#AEB9D6]">Active Audio Level</span>
             </div>
-
-            {/* Siri Animated Waveform visualizer */}
             <div className="h-10 flex items-center justify-center gap-1 pb-1">
               {Array.from({ length: 14 }).map((_, i) => (
                 <motion.div
                   key={i}
-                  animate={{ 
-                    height: [12, 38, 12],
-                    backgroundColor: ["#A78BFA", "#34D399", "#A78BFA"]
-                  }}
-                  transition={{ 
-                    duration: 0.8, 
-                    repeat: Infinity, 
-                    delay: i * 0.05, 
-                    ease: "easeInOut" 
-                  }}
+                  animate={{ height: [12, 38, 12], backgroundColor: ["#F78843", "#E837AC", "#F7D35F"] }}
+                  transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.05, ease: "easeInOut" }}
                   className="w-1.5 rounded-full"
                   style={{ height: "15px" }}
                 />
               ))}
             </div>
-
-            <p className="italic font-mono text-[11px] text-teal-200 text-center bg-black/35 py-1.5 px-2 rounded-lg border border-white/5">
-              {voiceText}
-            </p>
+            <p className="italic font-mono text-[11px] text-faria-paper text-center bg-black/40 py-1.5 px-2 rounded-lg border border-white/10">{voiceText}</p>
           </motion.div>
-        )}
-
-        {isTyping && (
-          <div className="flex gap-3 justify-start">
-            <div className="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0">
-              <Bot className="h-4 w-4 text-[#A78BFA]" />
-            </div>
-            <div className="p-3 rounded-2xl bg-slate-900/40 border border-white/5 text-xs text-[#AEB9D6] italic flex items-center gap-2">
-              <div className="flex gap-1.5">
-                <span className="w-1.5 h-1.5 bg-[#6D8BFF] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                <span className="w-1.5 h-1.5 bg-[#A78BFA] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                <span className="w-1.5 h-1.5 bg-[#5EEAD4] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-              </div>
-              <span>Synthesizing dynamic charts...</span>
-            </div>
-          </div>
         )}
       </div>
 
-      {/* Footer Area with suggestions and trigger buttons */}
-      <div className="p-4 border-t border-white/5 space-y-3 bg-[#141b30]/65 text-xs">
-        {/* Rapid Suggestions */}
+      {/* Footer Area */}
+      <div className="relative z-10 p-4 border-t border-white/10 space-y-3 bg-faria-darkPlum/95 backdrop-blur-xl text-xs">
         <div className="flex flex-wrap gap-1.5">
           {suggestionChips.map((s, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleSend(s)}
-              className="text-[10px] font-medium bg-white/5 border border-white/8 hover:bg-[#6D8BFF]/10 hover:border-[#6D8BFF]/30 hover:text-white px-2.5 py-1 rounded-full transition-all cursor-pointer"
-            >
+            <button key={idx} onClick={() => handleSend(s)} className="text-[10px] font-medium bg-white/5 border border-white/10 hover:bg-faria-pink/20 hover:border-faria-pink/40 hover:text-white text-faria-paper/80 px-2.5 py-1 rounded-full transition-all">
               {s}
             </button>
           ))}
         </div>
-
-        {/* Input area */}
-        <div className="flex gap-2 bg-[#070a14] border border-white/10 rounded-xl p-1.5 focus-within:border-[#6D8BFF]/50 transition-colors">
-          
-          {/* Audio trigger microphone (Siri mode) */}
-          <button
-            onClick={handleTriggerVoice}
-            className={`p-1.5 rounded-lg cursor-pointer transition-all ${
-              isListening 
-                ? "bg-rose-500 text-white animate-pulse" 
-                : "bg-white/5 hover:bg-white/15 text-slate-300 hover:text-white border border-white/5"
-            }`}
-            title="Start Siri Voice Sync input"
-          >
+        <div className="flex gap-2 bg-black/40 border border-white/10 rounded-xl p-1.5 focus-within:border-faria-pink/50 transition-colors">
+          <button onClick={handleTriggerVoice} className={`p-1.5 rounded-lg transition-all ${isListening ? "bg-faria-orange text-white animate-pulse" : "bg-white/10 hover:bg-white/20 text-white/70 hover:text-white"}`}>
             <Mic className="h-3.5 w-3.5" />
           </button>
-
-          <input
-            type="text"
-            placeholder="Type or tap mic to tell Copilot..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleSend(inputValue);
-            }}
-            className="flex-1 bg-transparent px-2 text-xs text-[#EAF0FF] placeholder-slate-500 focus:outline-none"
-          />
-          <button
-            onClick={() => handleSend(inputValue)}
-            className="p-1.5 bg-gradient-to-tr from-indigo-500 to-purple-500 hover:from-indigo-650 hover:to-purple-650 text-white rounded-lg shadow-md transition-all cursor-pointer"
-          >
+          <input type="text" placeholder="Type or tap mic..." value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleSend(inputValue); }} className="flex-1 bg-transparent px-2 text-xs text-white placeholder-white/40 focus:outline-none" />
+          <button onClick={() => handleSend(inputValue)} className="p-1.5 bg-gradient-to-tr from-faria-orange to-faria-pink text-white rounded-lg shadow-md hover:brightness-110 transition-all">
             <Send className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -495,4 +440,3 @@ export default function AICopilotPanel({ isOpen, onClose, selectedTeammates }: A
     </div>
   );
 }
-
