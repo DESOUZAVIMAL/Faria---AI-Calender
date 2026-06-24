@@ -23,11 +23,21 @@
   --color-faria-light-yellow: #FAE59F;
 
   --animate-shine: shine 1.5s ease-out infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-scanline: scanline 3s linear infinite;
 
   @keyframes shine {
     100% {
       transform: translateX(250%);
     }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+  }
+  @keyframes scanline {
+    0% { top: -4px; }
+    100% { top: 100%; }
   }
 }
 
