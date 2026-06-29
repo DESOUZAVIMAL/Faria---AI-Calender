@@ -1,18 +1,13 @@
 import React, { useState } from "react";
 import { TeammateRow } from "../types";
-import { 
-  Users, 
-  MapPin, 
-  Plus, 
-  Trash2, 
-  Settings, 
-  Filter, 
-  MinusCircle, 
-  PlusCircle, 
+import {
+  Users,
+  MapPin,
+  Plus,
+  Trash2,
+  Filter,
   Sparkles,
-  Info,
   Search,
-  Download,
   Loader2
 } from "lucide-react";
 import { DateTime } from "luxon";
@@ -119,14 +114,6 @@ export default function PeopleSelector({
       return { text: dt.toFormat("hh:mm a"), dot: "bg-red-400" };
     } catch {
       return { text: "--:--", dot: "bg-slate-400" };
-    }
-  };
-
-  const currentHourOfUser = (tz: string): string => {
-    try {
-      return DateTime.local().setZone(tz).toFormat("hh:mm a");
-    } catch {
-      return "";
     }
   };
 

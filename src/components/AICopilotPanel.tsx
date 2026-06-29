@@ -84,28 +84,17 @@ export default function AICopilotPanel({ isOpen, onClose, selectedTeammates }: A
   // We use a large array of paths with varying bezier curves to create a dense, sweeping horizontal web.
   // Using Faria Plum (#37023c), Dark Plum (#391638), Pink (#E837AC), and Yellow (#F7D35F) for depth.
   const denseWaves = [
-    // Deep background layer (Thicker, darker lines for depth)
+    // Deep background layer
     { path: "M-10,40 C30,10 70,80 110,40", color: "#552859", opacity: 0.6, width: "0.8", duration: 7, delay: 0 },
     { path: "M-10,60 C20,90 80,10 110,60", color: "#391638", opacity: 0.8, width: "1.2", duration: 8, delay: 1 },
     { path: "M-10,50 C40,20 60,80 110,50", color: "#552859", opacity: 0.7, width: "0.9", duration: 6, delay: 0.5 },
-    
-    // Mid layer (Faria Pink for vibrant structure)
+    // Mid layer
     { path: "M-10,30 C30,70 70,30 110,70", color: "#E837AC", opacity: 0.4, width: "0.4", duration: 5, delay: 0.2 },
     { path: "M-10,70 C40,30 60,70 110,30", color: "#E837AC", opacity: 0.3, width: "0.5", duration: 5.5, delay: 1.2 },
-    { path: "M-10,45 C25,25 75,75 110,45", color: "#F6AFDE", opacity: 0.3, width: "0.3", duration: 4.5, delay: 0.8 },
-    { path: "M-10,55 C35,85 65,15 110,55", color: "#E837AC", opacity: 0.5, width: "0.4", duration: 6.5, delay: 1.5 },
-
-    // Core energetic layer (Bright, thin lines crossing the center)
+    // Core energetic layer
     { path: "M-10,50 C20,40 80,60 110,50", color: "#F78843", opacity: 0.6, width: "0.2", duration: 4, delay: 0.3 },
     { path: "M-10,50 C40,60 60,40 110,50", color: "#F7D35F", opacity: 0.5, width: "0.2", duration: 3.5, delay: 0.7 },
     { path: "M-10,50 C10,10 90,90 110,50", color: "#E837AC", opacity: 0.6, width: "0.25", duration: 4.2, delay: 0.1 },
-    { path: "M-10,50 C30,90 70,10 110,50", color: "#F78843", opacity: 0.4, width: "0.3", duration: 4.8, delay: 0.9 },
-
-    // Additional crossing web lines to increase density
-    { path: "M-10,20 C40,80 60,20 110,80", color: "#552859", opacity: 0.5, width: "0.6", duration: 7.5, delay: 0.4 },
-    { path: "M-10,80 C30,20 70,80 110,20", color: "#391638", opacity: 0.7, width: "0.7", duration: 8.5, delay: 1.1 },
-    { path: "M-10,35 C50,65 50,35 110,65", color: "#E837AC", opacity: 0.2, width: "0.3", duration: 5.2, delay: 0.6 },
-    { path: "M-10,65 C50,35 50,65 110,35", color: "#F6AFDE", opacity: 0.2, width: "0.2", duration: 5.8, delay: 1.3 },
   ];
 
   const handleTriggerVoice = () => {
@@ -232,7 +221,7 @@ export default function AICopilotPanel({ isOpen, onClose, selectedTeammates }: A
           ))}
           
           {/* Traveling Data Particles */}
-          {[...Array(15)].map((_, i) => (
+          {[...Array(6)].map((_, i) => (
             <motion.circle
               key={`particle-${i}`}
               r="0.25"

@@ -132,7 +132,7 @@ export default function WeeklyHorizon() {
                       {MOCK_EVENTS.filter(e => e.day === dIdx + 1).map(event => (
                         <motion.div
                           key={event.id}
-                          whileHover={{ scale: 1.02, brightness: 1.1 }}
+                          whileHover={{ scale: 1.02 }}
                           className={`absolute inset-x-0 rounded-xl border p-2.5 overflow-hidden backdrop-blur-md flex flex-col justify-between cursor-pointer ${getColorClasses(event.color)}`}
                           style={{
                             top: `${((event.start - START_HOUR) / TOTAL_HOURS) * 100}%`,

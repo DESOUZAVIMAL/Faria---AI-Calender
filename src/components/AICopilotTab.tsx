@@ -20,25 +20,16 @@ export default function AICopilotTab() {
   // Every path flows strictly from left (x=-10) to right (x=110) to maintain the horizontal Spline aesthetic.
   // Darker, thicker lines in the back; thinner, glowing lines in the front.
   const waves = [
-    // --- Deep, Dark Background Layer (High density, very thick) ---
+    // Deep background layer
     { path: "M-10,40 C 30,70 70,30 110,60", color: "#1d0020", opacity: 0.9, width: "1.8", duration: 8, delay: 0 },
     { path: "M-10,60 C 40,20 60,80 110,40", color: "#2a002e", opacity: 0.8, width: "1.5", duration: 9, delay: 1 },
     { path: "M-10,50 C 20,80 80,20 110,50", color: "#4c0552", opacity: 0.6, width: "1.2", duration: 7, delay: 0.5 },
-    { path: "M-10,30 C 50,60 50,40 110,70", color: "#1d0020", opacity: 0.9, width: "2.0", duration: 8.5, delay: 2 },
-    { path: "M-10,70 C 50,40 50,60 110,30", color: "#2a002e", opacity: 0.7, width: "1.4", duration: 7.5, delay: 1.5 },
-    { path: "M-10,20 C 40,70 80,40 110,80", color: "#4c0552", opacity: 0.5, width: "1.0", duration: 9.5, delay: 0.8 },
-    
-    // --- Mid Layer (Subtle Faria Pink & Plum hints) ---
+    // Mid layer
     { path: "M-10,45 C 30,25 70,75 110,45", color: "#E837AC", opacity: 0.25, width: "0.4", duration: 6, delay: 0.2 },
     { path: "M-10,55 C 40,85 60,15 110,55", color: "#E837AC", opacity: 0.2, width: "0.3", duration: 6.5, delay: 1.2 },
-    { path: "M-10,35 C 20,55 80,45 110,65", color: "#F6AFDE", opacity: 0.15, width: "0.25", duration: 5.5, delay: 0.8 },
-    { path: "M-10,65 C 20,45 80,55 110,35", color: "#E837AC", opacity: 0.2, width: "0.4", duration: 7, delay: 1.8 },
-    { path: "M-10,48 C 30,48 70,52 110,52", color: "#F6AFDE", opacity: 0.15, width: "0.3", duration: 5, delay: 0.5 },
-    
-    // --- Fine, Bright Action Lines (Electric Data Paths) ---
+    // Fine action lines
     { path: "M-10,50 C 35,35 65,65 110,50", color: "#E837AC", opacity: 0.6, width: "0.15", duration: 4, delay: 0, glowing: true },
     { path: "M-10,52 C 45,60 55,40 110,48", color: "#F78843", opacity: 0.5, width: "0.1", duration: 4.5, delay: 0.7 },
-    { path: "M-10,48 C 25,65 75,35 110,52", color: "#E837AC", opacity: 0.7, width: "0.12", duration: 3.5, delay: 0.3, glowing: true },
     { path: "M-10,50 C 15,30 85,70 110,50", color: "#F7D35F", opacity: 0.4, width: "0.1", duration: 5, delay: 0.9 },
   ];
 
@@ -114,7 +105,7 @@ export default function AICopilotTab() {
           ))}
           
           {/* Animated Particles flowing horizontally along the waves */}
-          {[...Array(12)].map((_, i) => (
+          {[...Array(6)].map((_, i) => (
             <motion.circle
               key={`particle-${i}`}
               r="0.2"

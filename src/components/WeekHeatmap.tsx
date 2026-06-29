@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, startTransition } from "react";
 import { WeekDaySummary } from "../types";
 import { Sun, AlertCircle } from "lucide-react";
 import { motion } from "motion/react";
@@ -179,10 +179,10 @@ export default function WeekHeatmap({
               return (
                 <div
                   key={day.date + "-" + hr}
-                  onMouseEnter={() => setHoveredCell({ dayIndex: dIdx, hour: hr })}
-                  onMouseLeave={() => setHoveredCell(null)}
+                  onMouseEnter={() => startTransition(() => setHoveredCell({ dayIndex: dIdx, hour: hr }))}
+                  onMouseLeave={() => startTransition(() => setHoveredCell(null))}
                   onClick={() => onToggleDay(day.date)}
-                  className={`h-7 rounded-md cursor-pointer flex items-center justify-center text-xs font-mono font-semibold transition-[transform,background-color,box-shadow,filter] duration-150 relative hover:-translate-y-0.5 hover:z-10 hover:scale-105 hover:shadow-[0_0_12px_rgba(232,55,172,0.45)] hover:brightness-110 ${getCellColorClass(freeCount, total, isWeekend)}`}
+                  className={`h-7 rounded-md cursor-pointer flex items-center justify-center text-xs font-mono font-semibold transition-[transform,background-color] duration-150 relative hover:-translate-y-0.5 hover:z-10 hover:scale-105 ${getCellColorClass(freeCount, total, isWeekend)}`}
                   title={`${day.dayName} ${formatHourLabel(hr)}: ${freeCount}/${total} free`}
                 >
                   {total > 0 && (

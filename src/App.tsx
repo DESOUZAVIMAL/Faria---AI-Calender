@@ -17,20 +17,14 @@ import DailyFocus from "./components/DailyFocus";
 import LandingPage from "./components/LandingPage";
 import AICopilotTab from "./components/AICopilotTab";
 
-import { 
-  Calendar, 
-  Clock, 
-  Globe, 
-  Settings, 
-  ShieldCheck, 
-  Star, 
-  Zap, 
+import {
+  Clock,
+  Star,
+  Zap,
   LogOut,
-  MapPin,
   CalendarRange,
   ChevronLeft,
   ChevronRight,
-  Info,
   Sparkles,
   Menu,
   X,
@@ -190,7 +184,7 @@ export default function App() {
       return;
     }
 
-    const cacheKey = [...selectedPeopleIds].sort().join(",");
+    const cacheKey = `${currentWeekStart}:${[...selectedPeopleIds].sort().join(",")}`;
     if (calendarCache.current[cacheKey]) {
       setWeekData(calendarCache.current[cacheKey]);
       setLoadingWeek(false);
@@ -484,7 +478,7 @@ export default function App() {
                   {activeTab === "scheduling" ? "Scheduling Hub" : activeTab === "weekly" ? "Weekly Horizon" : activeTab === "daily" ? "Daily Focus" : "Gemini AI Copilot"}
                 </h2>
                 <span className="text-[10px] text-faria-pink leading-none mt-0.5">
-                  {activeTab === "scheduling" ? "Map multi-timezone calendars & overlaps" : "Platform capability preview block"}
+                  {activeTab === "scheduling" ? "Map multi-timezone calendars & overlaps" : activeTab === "weekly" ? "Your week at a glance" : activeTab === "daily" ? "Today's agenda & context" : "AI-powered scheduling assistant"}
                 </span>
               </div>
             </div>

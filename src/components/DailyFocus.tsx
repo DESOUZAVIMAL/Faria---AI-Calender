@@ -1,13 +1,10 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import { 
-  Clock, 
-  User, 
-  Video, 
-  MapPin, 
-  CheckSquare, 
-  FileText, 
-  ChevronRight, 
+import {
+  Clock,
+  Video,
+  CheckSquare,
+  ChevronRight,
   Sparkles,
   Zap
 } from "lucide-react";
@@ -78,7 +75,7 @@ export default function DailyFocus() {
     <div className="h-full grid grid-cols-1 lg:grid-cols-[1fr_420px] p-6 gap-6 overflow-hidden">
       
       {/* TIMELINE TRACKER (LEFT) */}
-      <div className="flex flex-col bg-[#141b30]/30 border border-white/5 backdrop-blur-md rounded-2xl p-6 overflow-y-auto style-scrollbar">
+      <div className="flex flex-col bg-[#141b30]/30 border border-white/5 backdrop-blur-md rounded-2xl p-6 overflow-y-auto no-scrollbar">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-lg font-display font-semibold text-[#EAF0FF]">Daily Engine</h2>
@@ -176,7 +173,7 @@ export default function DailyFocus() {
           </p>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 style-scrollbar">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 no-scrollbar">
           {/* Location / Meeting Room */}
           {currentEvent.location && (
             <div className="space-y-2">
