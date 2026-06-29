@@ -1,0 +1,66 @@
+{
+  "users": {
+    "demo-user": {
+      "id": "demo-user",
+      "email": "demo@example.com",
+      "name": "Demo User",
+      "viewer_tz": "America/New_York",
+      "role": "you"
+    }
+  },
+  "work_hours": {},
+  "preferences": {},
+  "included_calendars": {},
+  "roster": [
+    {
+      "id": "wei-taipei",
+      "name": "Wei Chen",
+      "email": "wei.chen@fariaedu.com",
+      "timezone": "Asia/Taipei",
+      "role": "manager",
+      "segments": [
+        [9, 18]
+      ]
+    },
+    {
+      "id": "lin-taipei",
+      "name": "Lin Mei",
+      "email": "lin.mei@fariaedu.com",
+      "timezone": "Asia/Taipei",
+      "role": "team",
+      "segments": [
+        [9, 18]
+      ]
+    },
+    {
+      "id": "jason-taipei",
+      "name": "Jason Yu",
+      "email": "jason.yu@fariaedu.com",
+      "timezone": "Asia/Taipei",
+      "role": "team",
+      "segments": [
+        [9, 18]
+      ]
+    },
+    {
+      "id": "sophie-lon",
+      "name": "Sophie Clarke",
+      "email": "sophie.c@fariaedu.com",
+      "timezone": "Europe/London",
+      "role": "team",
+      "segments": [
+        [9, 17]
+      ]
+    },
+    {
+      "id": "marcus-nyc",
+      "name": "Marcus Webb",
+      "email": "marcus.w@fariaedu.com",
+      "timezone": "America/New_York",
+      "role": "team",
+      "segments": [
+        [9, 18]
+      ]
+    }
+  ]
+}

@@ -137,7 +137,7 @@ export default function WeekHeatmap({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
               onClick={() => onToggleDay(day.date)}
-              className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all duration-200 transform hover:scale-[1.03] hover:shadow-lg group cursor-pointer ${
+              className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-[transform,background-color,border-color] duration-200 hover:scale-[1.02] group cursor-pointer ${
                 isToday 
                   ? "bg-faria-pink/15 border-faria-pink/45 text-faria-paper shadow-[0_0_15px_rgba(232,55,172,0.2)]" 
                   : isOpen 
@@ -182,7 +182,7 @@ export default function WeekHeatmap({
                   onMouseEnter={() => startTransition(() => setHoveredCell({ dayIndex: dIdx, hour: hr }))}
                   onMouseLeave={() => startTransition(() => setHoveredCell(null))}
                   onClick={() => onToggleDay(day.date)}
-                  className={`h-7 rounded-md cursor-pointer flex items-center justify-center text-xs font-mono font-semibold transition-[transform,background-color] duration-150 relative hover:-translate-y-0.5 hover:z-10 hover:scale-105 ${getCellColorClass(freeCount, total, isWeekend)}`}
+                  className={`h-7 rounded-md cursor-pointer flex items-center justify-center text-xs font-mono font-semibold transition-[transform,background-color] duration-150 hover:-translate-y-0.5 ${getCellColorClass(freeCount, total, isWeekend)}`}
                   title={`${day.dayName} ${formatHourLabel(hr)}: ${freeCount}/${total} free`}
                 >
                   {total > 0 && (

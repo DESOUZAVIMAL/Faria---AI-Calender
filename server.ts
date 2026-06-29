@@ -204,50 +204,70 @@ function generateRealisticEvents(
   };
 
   // Add different events depending on who this is
-  if (lowercaseEmail.includes("chloe")) {
-    // Chloe: Leadership Manager syncs
-    createLocalEvent("Leadership Strategy Sync", 9.5, 10.5);
-    createLocalEvent("1:1 Aarav / Engineers", 11.0, 11.5, "confirmed", "opaque", "accepted", true);
+  if (lowercaseEmail.includes("wei")) {
+    // Wei Chen – Taipei Engineering Manager
+    createLocalEvent("Team Standup", 9.0, 9.5);
+    createLocalEvent("Product Roadmap Review", 10.0, 11.5);
     if (isOddDay) {
-      createLocalEvent("Board Update Prep", 14.0, 15.0);
+      createLocalEvent("Sprint Planning", 14.0, 15.5);
     } else {
-      createLocalEvent("Recruiting Sync & Interviews", 15.0, 16.5);
+      createLocalEvent("1:1 with Lin & Jason", 13.0, 14.0);
     }
-  } else if (lowercaseEmail.includes("kenji")) {
-    createLocalEvent("Focus - Architecture Refactor", 9.0, 11.5, "confirmed", "transparent", "needsAction"); // likely free due to transparency
-    createLocalEvent("Standup Sync / Japan Office", 10.0, 10.5);
-    createLocalEvent("Mobile Architecture Sync", 14.0, 15.5);
-  } else if (lowercaseEmail.includes("aarav")) {
-    createLocalEvent("Engineering Daily Check-in", 10.5, 11.0);
+    // Noise: large broadcast all-company update (will be filtered)
+    createLocalEvent("All-Company Town Hall", 16.0, 17.0, "confirmed", "opaque", "accepted", false, 80);
+  } else if (lowercaseEmail.includes("lin")) {
+    // Lin Mei – Taipei Design Engineer
+    createLocalEvent("Design Brief Sync", 9.30, 10.30);
     if (isOddDay) {
-      createLocalEvent("Product Grooming & Roadmap", 11.5, 12.5, "tentative", "opaque", "tentative");
-      createLocalEvent("Focus - Bug squashing", 15.5, 17.5, "confirmed", "transparent");
-    } else {
-      createLocalEvent("1:1 with Chloe", 16.0, 16.5);
+      createLocalEvent("UI Component Review", 11.0, 12.5);
     }
-    createLocalEvent("Cross-Team Retrospective", 18.0, 19.0, "confirmed", "opaque", "accepted", false, 18); // broadcast event (>15 people)
-  } else if (lowercaseEmail.includes("sarah")) {
-    createLocalEvent("Design Sync & Critique", 10.0, 11.5);
-    createLocalEvent("User Testing Feedback", 13.0, 14.5, "confirmed", "opaque", "accepted", true); // Optional
-    if (isOddDay) {
-      createLocalEvent("Focus Time - UI Library", 15.0, 16.5, "confirmed", "transparent");
-    }
-  } else if (lowercaseEmail.includes("alex")) {
-    createLocalEvent("Infrastructure Deployment Check", 9.0, 9.5);
-    createLocalEvent("Systems Architecture Review", 10.5, 12.0);
+    // Noise: personal focus block marked transparent (will be filtered)
+    createLocalEvent("Focus Block – Component Library", 14.0, 16.0, "confirmed", "transparent");
+    createLocalEvent("Design System Critique", 16.30, 17.30);
+  } else if (lowercaseEmail.includes("jason")) {
+    // Jason Yu – Taipei Senior Engineer
+    createLocalEvent("Engineering Standup", 9.0, 9.30);
+    createLocalEvent("Architecture Review", 10.0, 11.30);
     if (!isOddDay) {
-      createLocalEvent("Database Migration Prep", 13.5, 15.0);
+      // Noise: optional social event (will be filtered)
+      createLocalEvent("Friday Team Coffee Chat", 12.0, 12.5, "confirmed", "opaque", "needsAction", true);
     }
-    createLocalEvent("Team Trivia & Coffee Hour", 16.0, 17.0, "confirmed", "opaque", "needsAction", true); // tentative/optional
+    createLocalEvent("Code Review Session", 14.0, 15.30);
+    if (isOddDay) {
+      createLocalEvent("Cross-Team Retrospective", 16.0, 17.0, "confirmed", "opaque", "accepted", false, 22); // broadcast >15 ppl
+    }
+  } else if (lowercaseEmail.includes("sophie")) {
+    // Sophie Clarke – London Senior Engineer
+    createLocalEvent("Morning Standup", 9.0, 9.30);
+    if (isOddDay) {
+      createLocalEvent("Sprint Review", 10.30, 12.0);
+    } else {
+      createLocalEvent("Design Critique", 11.0, 12.0);
+    }
+    // Noise: out-of-office block marked free/transparent (will be filtered)
+    createLocalEvent("Lunch Break – OOO", 12.30, 13.30, "confirmed", "transparent");
+    createLocalEvent("1:1 with Marcus (NYC)", 15.30, 16.0);
+    createLocalEvent("Engineering Wrap-up", 16.30, 17.0);
+  } else if (lowercaseEmail.includes("marcus")) {
+    // Marcus Webb – New York Senior Engineer
+    createLocalEvent("Morning Brief", 8.5, 9.0);
+    if (isOddDay) {
+      createLocalEvent("Engineering Sync", 10.0, 11.30);
+    } else {
+      createLocalEvent("Client Integration Review", 11.0, 12.30, "tentative", "opaque", "tentative");
+    }
+    // Noise: optional newsletter subscription block (will be filtered)
+    createLocalEvent("Weekly Newsletter Digest", 13.0, 13.30, "confirmed", "opaque", "accepted", true);
+    createLocalEvent("Architecture Discussion", 14.0, 15.0);
   } else {
-    // Standard User events
+    // Standard User (Demo viewer) events
     createLocalEvent("Standup Daily Checkin", 9.5, 10.0);
     createLocalEvent("Sprint Backlog Grooming", 11.0, 12.0);
   }
 
-  // Common joint meeting: "Global Team Sync" targeting 15:00 UTC
-  // Translate 15:00 UTC to local hour
-  const utcSync = DateTime.fromObject({ year: 2026, month: 6, day: 17, hour: 15, minute: 0 }, { zone: "UTC" });
+  // Common joint meeting: "Global Team Sync" targeting 13:00 UTC
+  // 13:00 UTC = 09:00 NYC / 14:00 London BST / 21:00 Taipei — the best overlap for this team
+  const utcSync = DateTime.fromObject({ year: 2026, month: 6, day: 17, hour: 13, minute: 0 }, { zone: "UTC" });
   const localSync = utcSync.setZone(tz);
   createLocalEvent("Global Team Check-in", localSync.hour, localSync.hour + 0.5);
 
@@ -1346,11 +1366,11 @@ app.get("/api/contacts", authenticateJWT, async (req, res) => {
 
   // High-fidelity fallback contacts for developer/demo/offline workflow
   res.json([
-    { id: "liam-paris", name: "Liam Vance", email: "liam.v@fariaedu.com", timezone: "Europe/Paris" },
-    { id: "sarah-ny", name: "Sarah Jenkins", email: "sarah.j@fariaedu.com", timezone: "America/New_York" },
-    { id: "oliver-sing", name: "Oliver Zhang", email: "oliver.z@fariaedu.com", timezone: "Asia/Singapore" },
-    { id: "emma-lon", name: "Emma Watson", email: "emma.w@fariaedu.com", timezone: "Europe/London" },
-    { id: "aria-p", name: "Aria Patel", email: "aria.p@fariaedu.com", timezone: "Asia/Kolkata" },
+    { id: "wei-taipei", name: "Wei Chen", email: "wei.chen@fariaedu.com", timezone: "Asia/Taipei" },
+    { id: "lin-taipei", name: "Lin Mei", email: "lin.mei@fariaedu.com", timezone: "Asia/Taipei" },
+    { id: "jason-taipei", name: "Jason Yu", email: "jason.yu@fariaedu.com", timezone: "Asia/Taipei" },
+    { id: "sophie-lon", name: "Sophie Clarke", email: "sophie.c@fariaedu.com", timezone: "Europe/London" },
+    { id: "marcus-nyc", name: "Marcus Webb", email: "marcus.w@fariaedu.com", timezone: "America/New_York" },
   ]);
 });
 
